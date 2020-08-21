@@ -7,3 +7,6 @@ project0
 *.synctex.gz
 *.toc
 report.txt
+preamble.tex
+*.out
+*.log
