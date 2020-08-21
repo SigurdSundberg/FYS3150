@@ -1,4 +1,9 @@
 .vscode
 *.o
 project0
-.gitignore
+*.aux
+*.fdb*
+*.fls
+*.synctex.gz
+*.toc
+report.txt
