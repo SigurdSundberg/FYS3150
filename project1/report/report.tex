@@ -34,6 +34,7 @@
   tabsize=2,	                     % sets default tabsize to 2 spaces
 }
 
+
 \title[Solving the Poisson-equation in one dimension]{Solving the Poisson-equation in one dimension: \\
 \normalsize{Tridiagonal Matrix Algorithm\\
  and \\
@@ -61,8 +62,9 @@ In this project we will take a look at solving the one-dimensional Poisson equat
 \end{equation}
 We will device an algorithm for a tridiagonal matrix, both the general case and a specialized case. Including, we will take a look at the more general method of solving matrix equations using LU-decomposition, comparing run times and space between the different algorithms. In addition to looking at relative error and finding the mesh-grid which gives the best approximation. Lastly, the findings will be discussed. 
 
-
-\section{Algorithms} 
+\section{Theory}
+\subsection{Poisson equation}
+\subsection{Approximating the second derivative}
 % >> Going from diff to linear form 
 To solve one-dimensional Poisson equiation numerically we will need to discretize the equation. Instead of having continous functions, we get 
 \begin{equation}\label{eq:disc}
@@ -72,7 +74,7 @@ To solve one-dimensional Poisson equiation numerically we will need to discretiz
 		f(x) \rightarrow f(x_i) = f_i \in[f_0,f_1, \dots ,f_i,\dots ,f_{n+1}],
 	\end{split}
 \end{equation}
-using grid-points $x_i = ih$ in the interval from $x_0 = 0$ to $x_{n+1} = 1$. The step length h is defined as $h = 1/(n+1)$. We then have the boundary conditions $x_0 = v_{n+1} = 0$. The approximation for the second derivative we need from \ref{eq:base}, can be found through Taylor expansion of $u(x\pm h)$ around $x$.
+using grid-points $x_i = ih$ in the interval from $x_0 = 0$ to $x_{n+1} = 1$ since we have an open interval. The step length h is defined as $h = 1/(n+1)$. We then have the boundary conditions $x_0 = v_{n+1} = 0$. The approximation for the second derivative we need from \ref{eq:base}, can be found through Taylor expansion of $u(x\pm h)$ around $x$.
 \begin{equation}
 	u(x\pm h) = u(x) \pm hu'(x) + \frac{h^2u''(x)}{2!} \pm \frac{h^3u'''(x)}{3!} + \mathcal{O}(h^4)\label{eq:taylor_exp}
 \end{equation}
@@ -82,15 +84,28 @@ u''(x) = \frac{u(x+h) + u(x-h) - 2u(x)}{h^2} + \mathcal{O}(h^2).\label{eq:second
 \end{equation}
 Using our discretization of the continous functions given by equation \ref{eq:disc}, we have the following equation
 \begin{equation}
--u''(x) \simeq f_i = \frac{u_{i+1} + u_{i-1} -2u_i}{h^2} +\mathcal{O}. \label{eq:inserted_for_disc}
+-u''(x) \simeq f_i = \frac{u_{i+1} + u_{i-1} -2u_i}{h^2} +\mathcal{O}(h^2). \label{eq:inserted_for_disc}
 \end{equation}
 for $i = 1,\cdots , n$. 
-If we define $f* = h^2f_i$, equation \ref{eq:inserted_for_disc} becomes $-u_{i+1} - u_{i-1} +2u_i = f*$. From the boundary conditions $u(0) = u(1) = 0$ we can see that we can rewrite our discretization \ref{eq:inserted_for_disc} as a linear algebra problem on the form
-\begin{equation}
-\mathbf{A}\vec{x} = f*, \nonumber
+If we define $f^*_i = h^2f_i$, equation \ref{eq:inserted_for_disc} becomes $-u_{i+1} - u_{i-1} +2u_i = f^*_i$. If we try inserting values of $i= 1, 2, 3, 4,\dots , n-1 n$  we get the following
+\begin{equation}\label{eq:disc_ins_i}
+	\begin{split}
+		-u_2 - u_0 + 2u_1 = f^*_1 \quad i = 1\\
+		-u_3 - u_1 + 2u_2 = f^*_2 \quad i = 2\\
+		-u_4 - u_2 + 2u_3 = f^*_3 \quad i = 3\\
+		-u_5 - u_3 + 2u_4 = f^*_4 \quad i = 4\\
+		\vdots \\
+		-u_n - u_{n-2} + 2u_{n-1} = f^*_{n-1} \quad i = n-1\\
+		-u_{n+1} - u_{n-1} + 2u_n = f^*_n \quad i = n
+	\end{split}
 \end{equation}
-where $\mathbf{A}$ is an $n\times n$ tridiagonal matrix which we rewrite as 
+With the Dirichlet boundary conditions $u(0) = u(n+1) = 0$ we see resembles a matrix with $2$ along the diagonal and $-1$ directly above and below the leading diagonal. We see that we can solve as a linear algebra problem, where we want to find $\vec{x}$, on the following form. 
 \begin{equation}
+\mathbf{A}\vec{x} = f^*, \nonumber
+\end{equation}
+where $\mathbf{A}$ is an $n\times n$ tridiagonal matrix which we found in \ref{eq:disc_ins_i}.
+\begin{equation}
+\mathbf{A} = 
 \begin{bmatrix}
 2 & -1 & 0 & \dots & \dots & 0 \\
 -1 & 2 & -1 & 0 & \dots & \dots \\
@@ -101,9 +116,77 @@ where $\mathbf{A}$ is an $n\times n$ tridiagonal matrix which we rewrite as
 \end{bmatrix}
 \end{equation}
 
+\section{Algorithms} 
 \subsection{Tridiagonal Matrix Algorithm}
 Section on the TDMA
 >> Problem b >> Implementation >> FLOPS
+
+Looking at a general case of solving a tridiagonal matrix on the form $\mathbf{A}\vec{x} = f^*$ we have 
+\begin{equation} 
+	\begin{bmatrix}
+		b_1 & c_1 & 0 &\dots &\dots &\dots \\
+		a_1 & b_2 & c_2 & 0 &\dots &\dots\\
+		0 & a_2 & b_3 & c_3 & 0 &\dots \\
+		\dots &\dots &\dots &\dots &\dots &\dots\\
+		\dots &\dots &\dots & a_{n-2} & b_{n-1} & c_{n-1} \\
+		\dots &\dots &\dots &\dots &a_{n-1} & b_n
+	\end{bmatrix}
+	\begin{bmatrix}
+		x_1 \\
+		x_2 \\
+		\dots \\
+		\dots \\
+		\dots \\
+		x_n
+	\end{bmatrix} 
+	= 
+	\begin{bmatrix}
+		f^*_1\\
+		f^*_2\\
+		\dots \\
+		\dots \\
+		\dots \\
+		f^*_n
+	\end{bmatrix}
+\end{equation}
+
+Let's take general case for a $4\times 4$ tridiagonal matrix and use Gaussian elimination to see if we can spot a pattern.
+Our system can then be written 
+\begin{align}
+	\mathbf{A}\vec{x} &= f^*\nonumber\\
+	\begin{bmatrix}
+		b_1 & c_1 & 0 & 0\\
+		a_1 & b_2 & c_2 & 0\\
+		0 & a_2 & b_3 & c_3 \\
+		0 & 0 & a_3 & b_4 
+	\end{bmatrix}
+	\begin{bmatrix}
+		x_1\\
+		x_2\\
+		x_3\\
+		x_4
+	\end{bmatrix}
+	&= 
+	\begin{bmatrix}
+		f^*_1\\
+		f^*_2\\
+		f^*_3\\
+		f^*_4
+	\end{bmatrix}
+\end{align}
+
+The set of equations we will use Gaussian elimination on is therefore 
+\begin{equation}
+ \left[
+  \begin{array}{cccc|c}
+	b_1 & c_1 & 0 & 0 & f^*_1\\
+	a_1 & b_2 & c_2 & 0 & f^*_2\\
+	0 & a_2 & b_3 & c_3 & f^*_3\\
+	0 & 0 & a_3 & b_4 & f^*_4
+  \end{array}
+ \right]
+\end{equation}
+First we will use forward substitution to remove all the elements along the diagonal below the leading diagonal. We start with $\textrm{II} - \textrm{I}(a_1/b_1)$ to remove $a_1$ from $\textrm{II}$, where \textrm{I} refers to row number one and so on. 
 \subsection{Specialized algorithm}
 Section on the optimization
 >> Specialized algorithm problem c >> FLOPS >> CPU time
