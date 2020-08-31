@@ -8,7 +8,7 @@
 // using namespace std for input and output
 using namespace std;
 
-// object for output files
+// object for output file
 ofstream ofile;
 
 //functions used
@@ -53,29 +53,51 @@ int main(int argc, char *argv[])
         // full filename on the form filename-i-
         fileout.append(argument);
         // timing file
-        string time_fileout = filename;
-        time_fileout.append(argument);
-        /* 
-        Initialization of vectors || All that has to do with setting up vectors and vector elements 
-        */
+        string time_fileout = "timed_" + fileout;
 
-        /* 
+        // initialization of vectors and constants
+        // double const e = -1;
+        double h = 1.0 / (n);
+        double hh = h * h;
+        double *d = new double[n + 1];
+        double *f_star = new double[n + 1];   // couldve used two arrays, using one to save space
+        double *x = new double[n + 1];        // x\in(0,1)
+        double *solution = new double[n + 1]; // solution
+        d[0] = 2;
+        solution[0] = solution[n] = 0.0;
+        for (int i = 1; i < n; i++)
+        {
+            // pre calc of d
+            d[i] = (i + 1.0) / ((double)i);
+        }
+        for (int i = 0; i <= n; i++)
+        {
+            // setup xi and f_star
+            x[i] = i * h;
+            f_star[i] = hh * f(i * h);
+        }
+
         // start timing
         clock_t start, finish;
         start = clock();
-        */
 
-        /*
-        functions + algorithm for solving the problems 
-        */
+        // implementation of algortihms
+        // forward sub
+        for (int i = 2; i < n; i++)
+        {
+            f_star[i] = f_star[i] + f_star[i - 1] / d[i - 1];
+        }
+        solution[n - 1] = f_star[n - 1] / d[n - 1];
+        for (int i = n - 2; i > 0; i--)
+        {
+            solution[i] = (f_star[i] + solution[i + 1]) / d[i];
+        }
 
         // end timing
-        /*
         finish = clock();
-        */
 
         // Output to file
-        ofile.open(fileout);
+        ofile.open("./output/" + fileout);
         // formatting of output
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         // title header of output file
@@ -83,29 +105,26 @@ int main(int argc, char *argv[])
         ofile << "program : " << argv[0] << endl;
         for (int i = 1; i < n; i++)
         {
-            /*
             double xval = x[i];
-            double RelativeError = fabs((exact(xval) - solution[i]) / exact(xval));
+            double relative_error = fabs((exact(xval) - solution[i]) / exact(xval));
             ofile << setw(15) << setprecision(8) << xval;
             ofile << setw(15) << setprecision(8) << solution[i];
-            ofile << setw(15) << setprecision(8) << exact[xval];
+            ofile << setw(15) << setprecision(8) << exact(xval);
             ofile << setw(15) << setprecision(8) << log10(relative_error) << endl;
-            */
         }
         ofile.close();
 
         // Writing to time_file
-        /*
-        ofile.open(time_fileout);
-        double timeused = (double) (finish - start)/((double) CLOCKS_PER_SEC );
-        cout << "Program tested = " << argv[0] << " for power of 10" << arguemnt << endl; 
-        cout << setprecision(10) << setw(20) << "Time used  for  computation=" << timeused << endl;
+        ofile.open("./output/" + time_fileout);
+        double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
+        ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
+        ofile << setprecision(10) << setw(20) << "Time used for computation = " << timeused << endl;
         ofile.close();
-        */
 
-        /* 
-        Free memory
-        */
+        delete[] x;
+        delete[] solution;
+        delete[] f_star;
+        delete[] d;
     }
 
     return 0;

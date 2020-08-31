@@ -8,5 +8,6 @@ project0
 *.toc
 report.txt
 preamble.tex
-*.out
+report.out
 *.log
+*.x

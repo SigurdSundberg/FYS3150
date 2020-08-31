@@ -341,11 +341,11 @@ this can be shown to be true through, for example induction. This can be found b
 \SetAlgoLined
  initialization\;
  \For{i = 2, 3,\dots , n}{
-	$\tilde{f}_i = f^*_i + \tilde{f}_{i-1}/\tilde{b}_{i-1}$\;  
+	$\tilde{f}_i = f^*_i + \tilde{f}_{i-1}/d_{i-1}$\;  
  }
- $x_n = \tilde{f}_n/\tilde{b}_n$\;
+ $x_n = \tilde{f}_n/d_n$\;
  \For{i = n-1, n-2, \dots, 1}{
-	$x_i = (\tilde{f}_i + x_{i+1})/\tilde{b}_i$
+	$x_i = (\tilde{f}_i + x_{i+1})/d_i$
  }
 \caption{Specialized algortihm}
 \end{algorithm}
