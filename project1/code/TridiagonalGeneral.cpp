@@ -58,18 +58,18 @@ int main(int argc, char *argv[])
         // Initialization of vectors
         double h = 1.0 / (n);
         double hh = h * h;
-        // double quotient;
-        double *x = new double[n + 1];        // x\in(0,1)
-        double *a = new double[n + 1];        // vector of lower diag elements
-        double *b = new double[n + 1];        // vector of diag elements
-        double *c = new double[n + 1];        // vector of upper diag elements
-        double *f_star = new double[n + 1];   // answer from explicit function
-        double *b_tilde = new double[n + 1];  // leading diag after for sub
+        double quotient;
+        double *x = new double[n + 1];      // x\in(0,1)
+        double *a = new double[n + 1];      // vector of lower diag elements
+        double *b = new double[n + 1];      // vector of diag elements
+        double *c = new double[n + 1];      // vector of upper diag elements
+        double *f_star = new double[n + 1]; // answer from explicit function
+        // double *b_tilde = new double[n + 1];  // leading diag after for sub
         double *f_tilde = new double[n + 1];  // answer vec after first pass
         double *solution = new double[n + 1]; // solution of the set of equations
         // setup of vector elements
         solution[0] = solution[n] = 0;
-        b_tilde[1] = 2; // b[i] = b_tilde[i]
+        // b_tilde[1] = 2; // b[i] = b_tilde[i]
         f_tilde[1] = f_star[1];
         for (int i = 0; i <= n; i++)
         {
@@ -86,16 +86,17 @@ int main(int argc, char *argv[])
 
         // Implementation of algorithm
         // Forwards substituti  on
+        // writing over the elements on b instead of implementing a new vector b_tilde. Both are equally valid. And computaionally only a net positive.
         for (int i = 2; i < n + 1; i++)
         {
-            // quotient = a[i - 1] / b_tilde[i - 1]; // first element of b[i] = b_tilde[i]
-            b_tilde[i] = b[i] - c[i - 1] * a[i - 1] / b_tilde[i - 1];            //quotient;
-            f_tilde[i] = f_star[i] - f_tilde[i - 1] * a[i - 1] / b_tilde[i - 1]; //quotient;
+            quotient = a[i - 1] / (double)b[i - 1];             // first element of b[i] = b_tilde[i]
+            b[i] = b[i] - c[i - 1] * quotient;                  //quotient;
+            f_tilde[i] = f_star[i] - f_tilde[i - 1] * quotient; //quotient;
         }
-        solution[n - 1] = f_tilde[n - 1] / b_tilde[n - 1];
+        solution[n - 1] = f_tilde[n - 1] / b[n - 1];
         for (int i = n - 2; i > 0; i--)
         {
-            solution[i] = (f_tilde[i] - solution[i + 1] * c[i]) / b_tilde[i];
+            solution[i] = (f_tilde[i] - solution[i + 1] * c[i]) / b[i];
         }
 
         // end timing
@@ -133,7 +134,7 @@ int main(int argc, char *argv[])
         delete[] c;
         delete[] f_star;
         delete[] f_tilde;
-        delete[] b_tilde;
+        // delete[] b_tilde;
         delete[] solution;
     }
 
