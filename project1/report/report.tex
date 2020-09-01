@@ -297,9 +297,9 @@ Assuming we have pre initialized vectors $a, b, c, f^*$ and defining $\tilde{b}_
 \SetAlgoLined
  initialization\;
  \For{i = 2, 3, \dots , n}{
-  $quotient = a_{i-1}/b_{i-1}$\;
-  $\tilde{b}_i = b_i - c_i\cdot quotient$\;
-  $\tilde{f}_i = f^*_i - f^*_{i-1}\cdot quotient$\;  
+  $quotient = a_{i-1}/\tilde{•}tilde{b}_{i-1}$\;
+  $\tilde{b}_i = b_i - c_{i-1}\cdot quotient$\;
+  $\tilde{f}_i = f^*_i - \tilde{f}_{i-1}\cdot quotient$\;  
  }
 \caption{Forward substitution}
 \end{algorithm}
