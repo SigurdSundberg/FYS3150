@@ -11,3 +11,4 @@ preamble.tex
 report.out
 *.log
 *.x
+/project1/code/output/*
