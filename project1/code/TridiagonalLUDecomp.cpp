@@ -1,12 +1,15 @@
-#include <cstdlib>  // atof function: ASCII to Float
-#include <iostream> // cout
-#include <cmath>    // math functions
-#include <fstream>  // Input/output stream class to operate on files.
-#include <iomanip>  // Set parametric such as setw, setprecision
-#include <string>   // Add normal string functionality
-#include <ctime>    // timing program
+#include <cstdlib>   // atof function: ASCII to Float
+#include <iostream>  // cout
+#include <cmath>     // math functions
+#include <fstream>   // Input/output stream class to operate on files.
+#include <iomanip>   // Set parametric such as setw, setprecision
+#include <string>    // Add normal string functionality
+#include <ctime>     // timing program'
+#include <armadillo> // armadillo lib used to manip vectors and matricies
+
 // using namespace std for input and output
 using namespace std;
+using namespace arma;
 
 // object for output files
 ofstream ofile;
@@ -53,8 +56,7 @@ int main(int argc, char *argv[])
         // full filename on the form filename-i-
         fileout.append(argument);
         // timing file
-        string time_fileout = filename;
-        time_fileout.append(argument);
+        string time_fileout = "timed_" + fileout;
         /* 
         Initialization of vectors || All that has to do with setting up vectors and vector elements 
         */
@@ -75,7 +77,7 @@ int main(int argc, char *argv[])
         */
 
         // Output to file
-        ofile.open(fileout);
+        ofile.open("./output/" + fileout);
         // formatting of output
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         // title header of output file
@@ -83,29 +85,21 @@ int main(int argc, char *argv[])
         ofile << "program : " << argv[0] << endl;
         for (int i = 1; i < n; i++)
         {
-            /*
             double xval = x[i];
-            double RelativeError = fabs((exact(xval) - solution[i]) / exact(xval));
+            double relative_error = fabs((exact(xval) - solution[i]) / exact(xval));
             ofile << setw(15) << setprecision(8) << xval;
             ofile << setw(15) << setprecision(8) << solution[i];
-            ofile << setw(15) << setprecision(8) << exact[xval];
+            ofile << setw(15) << setprecision(8) << exact(xval);
             ofile << setw(15) << setprecision(8) << log10(relative_error) << endl;
-            */
         }
         ofile.close();
 
         // Writing to time_file
-        /*
-        ofile.open(time_fileout);
-        double timeused = (double) (finish - start)/((double) CLOCKS_PER_SEC );
-        cout << "Program tested = " << argv[0] << " for power of 10" << arguemnt << endl; 
-        cout << setprecision(10) << setw(20) << "Time used  for  computation=" << timeused << endl;
+        ofile.open("./output/" + time_fileout);
+        double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
+        ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
+        ofile << setprecision(10) << setw(20) << "Time used for computation = " << timeused << endl;
         ofile.close();
-        */
-
-        /* 
-        Free memory
-        */
     }
 
     return 0;
