@@ -57,28 +57,45 @@ int main(int argc, char *argv[])
         fileout.append(argument);
         // timing file
         string time_fileout = "timed_" + fileout;
-        /* 
-        Initialization of vectors || All that has to do with setting up vectors and vector elements 
-        */
 
-        /* 
+        //Initialization of vectors
+        double h = 1.0 / (n);
+        double hh = h * h;
+        // shift the matrix so only the part between the endpoints is studied
+        n = n - 1; // n n-1
+        mat A = zeros<mat>(n, n);
+        vec f(n);
+        // vec x(n);
+        A(0, 0) = 2;
+        A(0, 1) = -1;
+        // x(0) = h;
+        f(0) = hh * f(x(0));
+        for (int i = 1; i < n - 1; i++)
+        {
+            // x(i) = x(i - 1) + h;
+            f(i) = hh * f(x(i));
+            A(i, i - 1) = -1;
+            A(i, i + 1) = -1;
+            A(i, i) = 2;
+        }
+        A(n - 1, n - 1) = 2;
+        A(n - 2, n - 1) = -1;
+        // x(n - 1) = x(n - 2) + h;
+        f(n - 1) = hh * f(x(n - 1));
+
         // start timing
         clock_t start, finish;
         start = clock();
-        */
 
-        /*
-        functions + algorithm for solving the problems 
-        */
+        // Using armadillo solve to solve the problem
+        vec solution = solve(A, f);
 
         // end timing
-        /*
         finish = clock();
-        */
 
         // Output to file
-        ofile.open("./output/" + fileout);
-        // formatting of output
+        /*        ofile.open("./output/" + fileout);
+         // formatting of output
         ofile << setiosflags(ios::showpoint | ios::uppercase);
         // title header of output file
         ofile << "           x:          approx:          exact:     relative error:" << endl;
@@ -92,7 +109,7 @@ int main(int argc, char *argv[])
             ofile << setw(15) << setprecision(8) << exact(xval);
             ofile << setw(15) << setprecision(8) << log10(relative_error) << endl;
         }
-        ofile.close();
+        ofile.close(); */
 
         // Writing to time_file
         ofile.open("./output/" + time_fileout);
