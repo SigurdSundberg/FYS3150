@@ -65,14 +65,14 @@ int main(int argc, char *argv[])
         n = n - 1; // n n-1
         mat A = zeros<mat>(n, n);
         vec f(n);
-        // vec x(n);
+        vec x(n);
         A(0, 0) = 2;
         A(0, 1) = -1;
-        // x(0) = h;
+        x(0) = h;
         f(0) = hh * f(x(0));
         for (int i = 1; i < n - 1; i++)
         {
-            // x(i) = x(i - 1) + h;
+            x(i) = x(i - 1) + h;
             f(i) = hh * f(x(i));
             A(i, i - 1) = -1;
             A(i, i + 1) = -1;
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         }
         A(n - 1, n - 1) = 2;
         A(n - 2, n - 1) = -1;
-        // x(n - 1) = x(n - 2) + h;
+        x(n - 1) = x(n - 2) + h;
         f(n - 1) = hh * f(x(n - 1));
 
         // start timing
@@ -112,6 +112,7 @@ int main(int argc, char *argv[])
         ofile.close(); */
 
         // Writing to time_file
+        ofile << setiosflags(ios::scientific);
         ofile.open("./output/" + time_fileout);
         double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
         ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
