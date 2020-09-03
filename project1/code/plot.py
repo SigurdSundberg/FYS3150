@@ -61,21 +61,26 @@ if __name__ == "__main__":
             # To plot the best fit curve for the exact values
             x, _, exact, _ = read_file4(in_file + str(number_of_files))
             plt.plot(x, exact, 'k', label="Analytical", linewidth=2)
-
-        for i in range(1, number_of_files+1):
-            in_file_i = in_file + str(i)
-            if arg == "rel":
-                find_max_relative_error(in_file_i, out_file)
-                print("Success")
-            elif arg == "plot":
+            for i in range(1, number_of_files+1):
+                in_file_i = in_file + str(i)
                 plot_file(in_file_i)
                 print("Success")
-            else:
-                print(
-                    "No argument was given, either use 'rel' or 'plot' to specify what the functions should do \n")
-                exit(1)
-
-        if arg == "plot":
             finalize_figure(out_file)
+        elif arg == "rel":
+            with open('./output/' + out_file + ".txt", 'w') as o:
+                o.write("Error for " + in_file + "\n")
+            for i in range(1, number_of_files+1):
+                in_file_i = in_file + str(i)
+                find_max_relative_error(in_file_i, out_file)
+                print("Success")
+        else:
+            print(
+                "No argument was given, either use 'rel' or 'plot' to specify what the functions should do \n")
+            exit(1)
 
-        print("Exit")
+    print("Exit")
+
+"""
+Run example 
+python3 plot.py plot specialized plot_specialized 3 2 
+"""
