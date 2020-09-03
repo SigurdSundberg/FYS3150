@@ -105,18 +105,18 @@ int main(int argc, char *argv[])
         // Output to file
         ofile.open("./output/" + fileout);
         // formatting of output
-        ofile << setiosflags(ios::showpoint | ios::uppercase);
+        ofile << setiosflags(ios::scientific);
         // title header of output file
-        ofile << "           x:          approx:          exact:     relative error:" << endl;
+        ofile << "              x:             approx:              exact:         relative error:" << endl;
         ofile << "program : " << argv[0] << endl;
         for (int i = 1; i < n; i++)
         {
             double xval = x[i];
             double relative_error = fabs((exact(xval) - solution[i]) / exact(xval));
-            ofile << setw(15) << setprecision(8) << xval;
-            ofile << setw(15) << setprecision(8) << solution[i];
-            ofile << setw(15) << setprecision(8) << exact(xval);
-            ofile << setw(15) << setprecision(8) << log10(relative_error) << endl;
+            ofile << setw(20) << setprecision(8) << xval;
+            ofile << setw(20) << setprecision(8) << solution[i];
+            ofile << setw(20) << setprecision(8) << exact(xval);
+            ofile << setw(20) << setprecision(8) << log10(relative_error) << endl;
         }
         ofile.close();
 
