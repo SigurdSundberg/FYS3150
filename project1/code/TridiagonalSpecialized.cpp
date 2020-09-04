@@ -56,23 +56,26 @@ int main(int argc, char *argv[])
         string time_fileout = "timed_" + fileout;
 
         // initialization of vectors and constants
-        // double const e = -1;
         double h = 1.0 / (n);
         double hh = h * h;
+
         double *d = new double[n + 1];
+        double *solution = new double[n + 1]; // solution
         double *f_star = new double[n + 1];   // couldve used two arrays, using one to save space
         double *x = new double[n + 1];        // x\in(0,1)
-        double *solution = new double[n + 1]; // solution
+
+        // initial conditions
         d[0] = 2;
         solution[0] = solution[n] = 0.0;
+        // pre calculation of d
         for (int i = 1; i < n; i++)
         {
-            // pre calc of d
             d[i] = (i + 1.0) / ((double)i);
         }
+        // setup xi and f_star
         for (int i = 0; i <= n; i++)
         {
-            // setup xi and f_star
+
             x[i] = i * h;
             f_star[i] = hh * f(i * h);
         }
@@ -88,6 +91,7 @@ int main(int argc, char *argv[])
             f_star[i] = f_star[i] + f_star[i - 1] / d[i - 1];
         }
         solution[n - 1] = f_star[n - 1] / d[n - 1];
+        // backwards sub
         for (int i = n - 2; i > 0; i--)
         {
             solution[i] = (f_star[i] + solution[i + 1]) / d[i];
