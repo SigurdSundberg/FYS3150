@@ -43,7 +43,7 @@
   \hrulefill\small{ FYS3150: Computational Physics }\hrulefill}
 
 \author[Sundberg]{Sigurd Sandvoll Sundberg \\
-  \href{https://https://github.com/SigurdSundberg/FYS3150/}{\texttt{github.com/sigurdsundberg}}}
+  \href{https://github.com/SigurdSundberg/FYS3150/tree/master/project1}{\texttt{github.com/sigurdsundberg}}}
 
 \begin{document}
 
@@ -62,6 +62,7 @@ In this project we will take a look at solving the one-dimensional Poisson equat
 -u''(x) = f(x), \quad x\in(0,1), \quad u(0)=u(1)=0.\label{eq:base}
 \end{equation}
 We will device an algorithm for a tridiagonal matrix, both the general case and a specialized case. Including, we will take a look at the more general method of solving matrix equations using LU-decomposition, comparing run times and space between the different algorithms. In addition to looking at relative error and finding the mesh-grid which gives the best approximation. Lastly, the findings will be discussed. 
+
 
 \section{Theory}
 \subsection{Poisson equation}
@@ -136,6 +137,10 @@ where $\mathbf{A}$ is an $n\times n$ tridiagonal matrix which we found in \ref{e
 \end{equation}
 
 \section{Algorithms} 
+For all programs, benchmark calulations and plots, see: \\
+\href{https://github.com/SigurdSundberg/FYS3150/tree/master/project1}{\textbf{github.com/SigurdSundberg/FYS3150}}
+
+
 \subsection{Tridiagonal Matrix Algorithm}
 Looking at a general case of solving a tridiagonal matrix on the form $\mathbf{A}\vec{x} = f^*$ we have 
 \begin{equation} 
@@ -353,12 +358,64 @@ this can be shown to be true through, for example induction. This can be found b
 If we take a look at the number of FLOPs in our specialized algorithm we see that we have 2 FLOPs for each of the loops, running $n-1$ times. Thus our specialized algorithm has in total $4(n-1)+1$ FLOPs $=(4n-3)$ FLOPs. For large $n$ we have $4n$ FLOPs. If we compared this to the generalized algorithm, we see that it is a factor $2$. 
 
 \subsection{LU Decomposition}
-Section on LU-decomposition
->> Alogrithm for LU-decomposition >> FLOPS >> CPU time
+The general method for solving dense non-singular matrix is using LU decomposition. The method involves taking a matrix $\mathbf{A}$ and rewriting it into the product of a lower triangular matrix $\mathbf{L}$ and an upper triangular matrix $\mathbf{U}$. 
+\begin{align*}
+\mathbf{A} &= \mathbf{L}\mathbf{U}\\
+\begin{bmatrix}
+	a_{11} & a_{12} & a_{13} & a_{14} \\
+	a_{21} &a_{22} &a_{23} &a_{24} \\
+	a_{31} &a_{32} &a_{33} &a_{34}  \\
+	a_{41} &a_{32} &a_{43} &a_{44} 
+\end{bmatrix}
+&= 
+\begin{bmatrix}
+1& 0 & 0 & 0 \\
+ l_{21}& 1& 0 & 0\\
+ l_{31}&l_{32}&1& 0\\
+ l_{41}&l_{42}&l_{43}&1
+\end{bmatrix}
+\begin{bmatrix}
+u_{11}& u_{21}&u_{31}&u_{41}\\
+0 & u_{22} & u_{23}& u_{24} \\
+0 & 0 & u_{33}& u_{34}\\
+0 & 0 & 0 & u_{44}
+\end{bmatrix}
+\end{align*}
+
+This gives us a new way of solving $\mathbf{A}\vec{x}=\vec{b}$, where the problem can be solved in two steps 
+\begin{equation}
+\mathbf{L}\mathbf{U}\vec{x} = \vec{b} \rightarrow \mathbf{L}\vec{w} = \vec{b}, \quad \mathbf{U}\vec{x} = \vec{w}
+\end{equation}
+We can solve $\mathbf{L}\vec{w} = \vec{b}$ by forward substitution and $\mathbf{U}\vec{x} = \vec{w}$ by backward substitution. 
+
+Here we will not develop or implementing an algorithm for LU decomposition. We will use the high level library Armadillo and implement the course functions which can be found in the code folder on github, named lib.h. We are interested in the difference in runtime between the general algorithm, specialized algorithm and LU decomposition. Also included is the Armadillo function $solve$ which is adaptable and choose the quickest possible solution to the linear system. We remember that for the general algorithm the number of FLOPs needed goes like ($8n$)FLOPs and for the specialized we were able to reduce it to ($4n$)FLOPs. For LU decomposition, as we are not working with vectors, but entire matricies. The number of FLOPs needed to LU decompose a matrix is ($2/3 n^3$)FLOPs\cite{morten}. We would expect that using LU decomposition to solve the problem would result in a solver execution time going $n^2$. 
 
 \section{Results}
-Results from the report.
->> CPU time difference >> Plots >> Difference in relative error
+\subsection{Relative error}
+Here we will take a look at the relative error between the algorithms implemented. 
+\subsection{CPU time}
+\begin{table}[h]
+\caption{Table covering runtimes from semi-cold starts for all four algorithms used. Thoose being General, Specialized, Armadillos $solve$ and the library functions from lib.hpp. Data for Armadillo $solve$ and lib.hpp are not included for $n>4$ as it is limited by memory and could not be run in this test. All times are listed in seconds, unless spesified.}
+\begin{tabular}{lcccc}
+\hline
+ $10^n$ & General & Specialized & $solve$ & lib.hpp \\ \hline
+ 1 & 0.00000024 & 0.00000021 & 0.00303977 & 0.00002143 \\
+ 2 & 0.00000164 & 0.00000140 & 0.00008639 & 0.00325874\\
+ 3 & 0.00001927 & 0.00001484 & 0.00644989 & 0.98828253\\
+ 4 & 0.00021870 & 0.00014394 & 0.58261636 & ~42 minutes\\
+ 5 & 0.00223254 & 0.00147353 & n/a & n/a\\
+ 6 & 0.02110298 & 0.01508435 & n/a & n/a 
+ \end{tabular}
+\label{tab:solver_times}
+\end{table}
+
+\begin{figure}[h]
+ \centering
+ \includegraphics[width=0.9\linewidth]{../code/plots/plot_general.png}
+ \caption{Plot of the specialized algorithm against the analytical solution. The plot shows runs for of the specialized algorithm with $n = 1, 2, 3$. End points are skipped in the plot for numerical solutions, as they do not affect the calculations and are set as $u(0) = u(n) = 0$.}
+ \label{fig:special}
+\end{figure}
+
 
 \section{Discussion}
 Discussion of the report.
@@ -463,5 +520,9 @@ Conclusion of the report.
     % \bibitem{golub}{Golub, G.H., van Loan, C.F. (1996). \emph{Matrix
           % Computations} (3rd ed.), Baltimore: John Hopkins.}
 % \end{thebibliography}
+
+\bibliography{bib_proj1}
+\bibliographystyle{plain}
+
 
 \end{document}

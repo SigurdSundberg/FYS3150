@@ -1,14 +1,26 @@
+# Folders and misc files
 .vscode
-*.o
+Makefile
+/project1/code/output/*
+/project1/code/Trash/*
 project0
+# Latex dumb files and alike
 *.aux
 *.fdb*
 *.fls
 *.synctex.gz
 *.toc
-report.txt
-preamble.tex
-report.out
 *.log
+*.bib
+*.blg
+*.dvi
+*.bbl
+# Accompaning latex files
+report.txt
+report.pdf
+preamble.tex
+table.txt
+report.out
+# C++ files
 *.x
-/project1/code/output/*
+*.o
