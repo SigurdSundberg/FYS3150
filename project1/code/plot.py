@@ -38,47 +38,46 @@ def setup_figure():
     plt.figure()
 
 
-def finalize_figure(out_file):
+def finalize_figure(in_file, out_file):
     plt.legend()
     plt.xlabel("x")
     plt.ylabel("u(x)")
-    plt.title("Analytical plotted against general method")
+    plt.title(f"Analytical plotted against {in_file:s} method")
     plt.savefig("./plots/" + out_file)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 6:
-        print("Wrong use: include infile, outfile, number of files and number of rows to skip\n")
-        exit(1)
-    else:
+    try:
         arg = sys.argv[1]
         in_file = sys.argv[2]
-        out_file = sys.argv[3]
-        number_of_files = int(sys.argv[4])
-        skip_rows = int(sys.argv[5])
-        if arg == "plot":
-            setup_figure()
-            # To plot the best fit curve for the exact values
-            x, _, exact, _ = read_file4(in_file + str(number_of_files))
-            plt.plot(x, exact, 'k', label="Analytical", linewidth=2)
-            for i in range(1, number_of_files+1):
-                in_file_i = in_file + str(i)
-                plot_file(in_file_i)
-                print("Success")
-            finalize_figure(out_file)
-        elif arg == "rel":
-            with open('./output/' + out_file + ".txt", 'w') as o:
-                o.write("Error for " + in_file + "\n")
-            for i in range(1, number_of_files+1):
-                in_file_i = in_file + str(i)
-                find_max_relative_error(in_file_i, out_file)
-                print("Success")
-        else:
-            print(
-                "No argument was given, either use 'rel' or 'plot' to specify what the functions should do \n")
-            exit(1)
+        number_of_files = int(sys.argv[3])
+    except:
+        print("Wrong use: include infile, outfile, number of files and number of rows to skip\n")
+    out_file = in_file
+    skip_rows = 2
+    if arg == "plot":
+        setup_figure()
+        # To plot the best fit curve for the exact values
+        x, _, exact, _ = read_file4(in_file + str(number_of_files))
+        plt.plot(x, exact, 'k', label="Analytical", linewidth=2)
+        for i in range(1, number_of_files+1):
+            in_file_i = in_file + str(i)
+            plot_file(in_file_i)
+            print("Success")
+        finalize_figure(in_file, "plot_" + out_file)
+    elif arg == "rel":
+        with open('./output/error_' + out_file + ".txt", 'w') as o:
+            o.write("Error for " + in_file + "\n")
+        for i in range(1, number_of_files+1):
+            in_file_i = in_file + str(i)
+            find_max_relative_error(in_file_i, "error_" + out_file)
+            print("Success")
+    else:
+        print(
+            "No argument was given, either use 'rel' or 'plot' to specify what the functions should do \n")
+        exit(1)
 
-    print("Exit")
+print("Exit")
 
 """
 Run example 
