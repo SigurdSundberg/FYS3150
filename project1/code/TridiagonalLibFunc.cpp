@@ -4,7 +4,7 @@
 #include <fstream>  // Input/output stream class to operate on files.
 #include <iomanip>  // Set parametric such as setw, setprecision
 #include <string>   // Add normal string functionality
-#include <ctime>    // timing program'
+#include <chrono>   // timing program'
 #include "lib.hpp"  // library functions used in FYS3150
 
 // using namespace std for input and output
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
     // looping over all the exponents, from 1 to highest exponent
     for (int i = 1; i <= exponent; i++)
     {
+        cout << i << endl;
         // length of the arrays n elements
         int n = (int)pow(10.0, i);
         // Base extension of filename
@@ -84,18 +85,18 @@ int main(int argc, char *argv[])
             x[i] = h * i;
             solution[i] = hh * ddu(h * i);
         }
-
+        cout << "done setup" << endl;
         // start timing
-        clock_t start, finish;
-        start = clock();
+        auto start = chrono::high_resolution_clock::now();
 
         // LU dcmp and LU back sub
         ludcmp(A, n, indx, &d);
+        cout << "decomp" << endl;
         lubksb(A, n, indx, solution);
 
         // end timing
-        finish = clock();
-
+        auto finish = chrono::high_resolution_clock::now();
+        cout << "done calc" << endl;
         // Output to file
         ofile.open("./output/" + fileout);
         // formatting of output
@@ -115,11 +116,10 @@ int main(int argc, char *argv[])
         ofile.close();
 
         // Writing to time_file
-        ofile << setiosflags(ios::scientific);
         ofile.open("./output/" + time_fileout);
-        double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
         ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
-        ofile << setprecision(10) << setw(20) << "Time used for computation = " << timeused << endl;
+        ofile << setprecision(10) << setw(20) << "Time used for computation in seconds = " << endl;
+        ofile << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9) << endl;
         ofile.close();
 
         free_matrix((void **)A);
