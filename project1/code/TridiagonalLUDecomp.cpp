@@ -109,17 +109,24 @@ int main(int argc, char *argv[])
         // title header of output file
         ofile << "              x:             approx:              exact:         relative error:" << endl;
         ofile << "program : " << argv[0] << endl;
-        for (int i = 1; i < n; i++)
+        for (int i = 0; i < n; i++)
         {
             double xval = x(i);
             double relative_error = fabs((exact(xval) - solution(i)) / exact(xval));
+            if (isnan(relative_error) || isinf(relative_error))
+            {
+                relative_error = -99;
+            }
+            else
+            {
+                relative_error = log10(relative_error);
+            }
             ofile << setw(20) << setprecision(8) << xval;
             ofile << setw(20) << setprecision(8) << solution(i);
             ofile << setw(20) << setprecision(8) << exact(xval);
-            ofile << setw(20) << setprecision(8) << log10(relative_error) << endl;
+            ofile << setw(20) << setprecision(8) << relative_error << endl;
         }
         ofile.close();
-
         // Writing to time_file
         ofile.open("./output/" + time_fileout);
         ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     // looping over all the exponents, from 1 to highest exponent
     for (int i = 1; i <= exponent; i++)
     {
-        cout << i << endl;
+        //cout << i << endl;
         // length of the arrays n elements
         int n = (int)pow(10.0, i);
         // Base extension of filename
@@ -85,18 +85,18 @@ int main(int argc, char *argv[])
             x[i] = h * i;
             solution[i] = hh * ddu(h * i);
         }
-        cout << "done setup" << endl;
+        //cout << "done setup" << endl;
         // start timing
         auto start = chrono::high_resolution_clock::now();
 
         // LU dcmp and LU back sub
         ludcmp(A, n, indx, &d);
-        cout << "decomp" << endl;
+        // cout << "decomp" << endl;
         lubksb(A, n, indx, solution);
 
         // end timing
         auto finish = chrono::high_resolution_clock::now();
-        cout << "done calc" << endl;
+        // cout << "done calc" << endl;
         // Output to file
         ofile.open("./output/" + fileout);
         // formatting of output
@@ -104,14 +104,22 @@ int main(int argc, char *argv[])
         // title header of output file
         ofile << "              x:             approx:              exact:         relative error:" << endl;
         ofile << "program : " << argv[0] << endl;
-        for (int i = 1; i < n; i++)
+        for (int i = 0; i < n + 1; i++)
         {
             double xval = x[i];
             double relative_error = fabs((exact(xval) - solution[i]) / exact(xval));
+            if (isnan(relative_error) || isinf(relative_error))
+            {
+                relative_error = -99;
+            }
+            else
+            {
+                relative_error = log10(relative_error);
+            }
             ofile << setw(20) << setprecision(8) << xval;
             ofile << setw(20) << setprecision(8) << solution[i];
             ofile << setw(20) << setprecision(8) << exact(xval);
-            ofile << setw(20) << setprecision(8) << log10(relative_error) << endl;
+            ofile << setw(20) << setprecision(8) << relative_error << endl;
         }
         ofile.close();
 
