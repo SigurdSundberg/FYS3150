@@ -4,7 +4,7 @@
 #include <fstream>  // Input/output stream class to operate on files.
 #include <iomanip>  // Set parametric such as setw, setprecision
 #include <string>   // Add normal string functionality
-#include <ctime>    // timing program
+#include <chrono>   // timing program
 // using namespace std for input and output
 using namespace std;
 
@@ -81,8 +81,7 @@ int main(int argc, char *argv[])
         }
 
         // start timing
-        clock_t start, finish;
-        start = clock();
+        auto start = chrono::high_resolution_clock::now();
 
         // implementation of algortihms
         // forward sub
@@ -98,7 +97,7 @@ int main(int argc, char *argv[])
         }
 
         // end timing
-        finish = clock();
+        auto finish = chrono::high_resolution_clock::now();
 
         // Output to file
         ofile.open("./output/" + fileout);
@@ -120,9 +119,9 @@ int main(int argc, char *argv[])
 
         // Writing to time_file
         ofile.open("./output/" + time_fileout);
-        double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
         ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
-        ofile << setprecision(10) << setw(20) << "Time used for computation = " << timeused << endl;
+        ofile << setprecision(10) << setw(20) << "Time used for computation in seconds = " << endl;
+        ofile << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9) << endl;
         ofile.close();
 
         delete[] x;

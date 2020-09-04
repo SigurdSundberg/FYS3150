@@ -1,10 +1,10 @@
-#include <cstdlib>  // atof function: ASCII to Float
-#include <iostream> // cout
-#include <cmath>    // math functions
-#include <fstream>  // Input/output stream class to operate on files.
-#include <iomanip>  // Set parametric such as setw, setprecision
-#include <string>   // Add normal string functionality
-//#include <ctime>     // timing program'
+#include <cstdlib>   // atof function: ASCII to Float
+#include <iostream>  // cout
+#include <cmath>     // math functions
+#include <fstream>   // Input/output stream class to operate on files.
+#include <iomanip>   // Set parametric such as setw, setprecision
+#include <string>    // Add normal string functionality
+#include <chrono>    // timing program'
 #include <armadillo> // armadillo lib used to manip vectors and matricies
 
 // using namespace std for input and output
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
         // full filename on the form filename-i-
         fileout.append(argument);
         // timing file
-        //string time_fileout = "timed_" + fileout;
+        string time_fileout = "timed_" + fileout;
 
         //Initialization of vectors
         double h = 1.0 / (n);
@@ -94,14 +94,13 @@ int main(int argc, char *argv[])
         f(n - 1) = hh * ddu(x(n - 1));
 
         // start timing
-        // clock_t start, finish;
-        //start = clock();
+        auto start = chrono::high_resolution_clock::now();
 
         // Using armadillo solve to solve the problem
         vec solution = solve(A, f);
 
         // end timing
-        //finish = clock();
+        auto finish = chrono::high_resolution_clock::now();
 
         // Output to file
         ofile.open("./output/" + fileout);
@@ -120,14 +119,13 @@ int main(int argc, char *argv[])
             ofile << setw(20) << setprecision(8) << log10(relative_error) << endl;
         }
         ofile.close();
-        /* 
+
         // Writing to time_file
-        ofile << setiosflags(ios::scientific);
         ofile.open("./output/" + time_fileout);
-        double timeused = (double)(finish - start) / ((double)CLOCKS_PER_SEC);
         ofile << "Program tested = " << argv[0] << " for power of 10^" << argument << endl;
-        ofile << setprecision(10) << setw(20) << "Time used for computation = " << timeused << endl;
-        ofile.close(); */
+        ofile << setprecision(10) << setw(20) << "Time used for computation in seconds = " << endl;
+        ofile << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9) << endl;
+        ofile.close();
     }
 
     return 0;
