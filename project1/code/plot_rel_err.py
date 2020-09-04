@@ -6,7 +6,7 @@ import os.path
 
 def plot_file(in_file):
     [h, k] = read_file(in_file)
-    plt.plot(h, k, "k", label=f"n = {in_file[-1]:s}")
+    plt.plot(h, k, "k")
 
 
 def read_file(in_file):
@@ -24,10 +24,10 @@ def setup_figure():
 
 
 def finalize_figure(in_file, out_file):
-    plt.legend()
+    # plt.legend()
     plt.xlabel("log10(h)")
     plt.ylabel("log10(relative error)")
-    plt.title(f"Log/Log plot of Log10(relative error) vs Log10(h)")
+    plt.title(f"Log/Log plot for {in_file} method")
     plt.savefig("./plots/" + out_file)
 
 
