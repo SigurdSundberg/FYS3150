@@ -12,7 +12,7 @@ void rk4(double *y, double *dydx, int n, double x, double h, double  *yout,
     ** Input data:                      
     **  int row      - number of  rows          
     **  int col      - number of columns        
-    �*  int num_bytes- number of bytes for each 
+    **  int num_bytes- number of bytes for each 
     **                 element                  
     ** Returns a void  **pointer to the reserved memory location.                                
 
@@ -86,7 +86,7 @@ void jacobi(double** a, double* d, double** v, int n, int& nrot)
     ** a  by use of the Jacobi method.
     ** It puts the eigenvalues in d and eigenvectors in v.
     ** n is an integer denoting the size of a
-    **nrot keeps track of the number of rotations
+    ** nrot keeps track of the number of rotations
     ** The function is as in the Numerical recipe
 
 void jacobi_rot(double** a, double s, double tau, int i, int j, int k, int l)
