@@ -34,7 +34,7 @@ try:
     in_file = sys.argv[1]
     number_of_files = int(sys.argv[2])
 except:
-    print("Wrong use: include infile, outfile, number of files and number of rows to skip\n")
+    print("input name of file and number of files you want to run\n")
 out_file = in_file
 skip_rows = 2
 setup_figure()
@@ -44,5 +44,4 @@ plt.plot(x, exact, 'k', label="Analytical", linewidth=2)
 for i in range(1, number_of_files + 1):
     in_file_i = in_file + str(i)
     plot_file(in_file_i)
-    print("Success")
 finalize_figure(in_file, "plot_" + out_file)

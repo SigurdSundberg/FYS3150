@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # Creating plots
     print("How many files do you want to plot from? type: int")
     # max_files = (input())  # Can hard code max files
-    max_files = 3
+    max_files = "3"
     system("python3" + " " + "make_plot.py" + " "
            + algo + " " + max_files)
 
@@ -54,7 +54,22 @@ if __name__ == "__main__":
     system("python3" + " " + "time_table.py" + " "
            + algo + " " + n)
 
-    print("Done making table. ")
+    print("Done making table. Plotting relative error...")
+    system("python3 plot_rel_err.py" + " "
+           + algo + " " + n)
+    print("Done plotting relative error.")
+
+    # Move benchmark files to data
+    if (algo == "general" or algo == "special"):
+        system("mv ./output/" + algo + "2" +
+               " " + "./data/bench_" + algo + "2")
+        system("mv ./output/" + algo + "4" +
+               " " + "./data/bench_" + algo + "4")
+    if (algo == "lu" or algo == "lib"):
+        system("mv ./output/" + algo + "2" +
+               " " + "./data/bench_" + algo + "2")
+        system("mv ./output/" + algo + "3" +
+               " " + "./data/bench_" + algo + "3")
 
     # Removing files that aren't needed anymore
     print("Do you want to remove the output files?")

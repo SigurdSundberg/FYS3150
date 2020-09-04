@@ -5,6 +5,8 @@ import os.path
 
 def find_max_relative_error(in_file, out_file, i):
     [*_, rel] = read_file4(in_file)
+    # Set first and last element which is not counted for error to a low number out of scope of max
+    rel[0] = rel[-1] = -99
     max_value = max(rel)
     write_to_file(out_file, max_value, i)
 
@@ -14,7 +16,8 @@ def read_file4(in_file):
         print("File does not exists")
         sys.exit(1)
     else:
-        data = np.loadtxt("./output/" + in_file, skiprows=skip_rows)
+        data = np.loadtxt("./output/" + in_file,
+                          skiprows=skip_rows)
         return [data[:, 0], data[:, 1], data[:, 2], data[:, 3]]
 
 
