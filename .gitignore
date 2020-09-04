@@ -4,6 +4,8 @@ Makefile
 /project1/code/output/*
 /project1/code/Trash/*
 project0
+#Python files not to be included
+run.py
 # Latex dumb files and alike
 *.aux
 *.fdb*
