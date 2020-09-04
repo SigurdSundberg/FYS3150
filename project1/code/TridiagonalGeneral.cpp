@@ -55,30 +55,35 @@ int main(int argc, char *argv[])
         // timing file
         string time_fileout = "timed_" + fileout;
 
-        // Initialization of vectors
+        // Defining steplength and steplength ^2
         double h = 1.0 / (n);
         double hh = h * h;
+        // Defining variables and vectors
         double quotient;
         double *x = new double[n + 1];      // x\in(0,1)
         double *a = new double[n + 1];      // vector of lower diag elements
         double *b = new double[n + 1];      // vector of diag elements
         double *c = new double[n + 1];      // vector of upper diag elements
         double *f_star = new double[n + 1]; // answer from explicit function
+
         // double *b_tilde = new double[n + 1];  // leading diag after for sub
         double *f_tilde = new double[n + 1];  // answer vec after first pass
         double *solution = new double[n + 1]; // solution of the set of equations
+
         // setup of vector elements
         solution[0] = solution[n] = 0;
+
         // b_tilde[1] = 2; // b[i] = b_tilde[i]
-        f_tilde[1] = f_star[1];
+
         for (int i = 0; i <= n; i++)
         {
-            a[i] = -1;
-            c[i] = -1;
-            b[i] = 2;
+            a[i] = -1.0;
+            c[i] = -1.0;
+            b[i] = 2.0;
             x[i] = i * h;
             f_star[i] = hh * f(i * h);
         }
+        f_tilde[1] = f_star[1];
 
         // start timing
         clock_t start, finish;
