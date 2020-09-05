@@ -67,23 +67,24 @@ int main(int argc, char *argv[])
         double d;
         double *x = new double[n];
 
-        double h = 1.0 / (n);
+        double h = 1.0 / (n + 1);
         double hh = h * h;
 
         // setup values in matricies and vectors
-        A[0][0] = 2;
-        A[0][1] = -1;
-        for (int i = 1; i < n; i++)
+        A[0][0] = 2.;
+        A[0][1] = -1.;
+        for (int i = 1; i < n - 1; i++)
         {
             A[i][i] = 2;
-            A[i][i + 1] = -1;
-            A[i][i - 1] = -1;
+            A[i][i + 1] = -1.;
+            A[i][i - 1] = -1.;
         }
-
+        A[n - 1][n - 1] = 2.;
+        A[n - 1][n - 2] = -1.;
         for (int i = 0; i <= n; i++)
         {
-            x[i] = h * i;
-            solution[i] = hh * ddu(h * i);
+            x[i] = h * (i + 1);
+            solution[i] = hh * ddu(x[i]);
         }
         //cout << "done setup" << endl;
         // start timing
