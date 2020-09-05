@@ -27,7 +27,7 @@ def finalize_figure(in_file, out_file):
     # plt.legend()
     plt.xlabel("log10(h)")
     plt.ylabel("log10(relative error)")
-    plt.title(f"Log/Log plot for {in_file} method")
+    plt.title(f"Log/Log plot for {out_file[6::]} method")
     plt.savefig("./plots/" + out_file)
 
 

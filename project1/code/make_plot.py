@@ -6,7 +6,7 @@ import os.path
 
 def plot_file(in_file):
     [x, app, *_] = read_file4(in_file)
-    plt.plot(x, app, '--', label=f"n = {in_file[-1]:s}")
+    plt.plot(x, app, '--', label=f"n = 10^{in_file[-1]:s}")
 
 
 def read_file4(in_file):
