@@ -6,6 +6,7 @@
 \usepackage[]{listings}
 \usepackage[T1]{fontenc}
 \usepackage{color}
+\usepackage[]{subcaption}
 \usepackage[ruled,vlined]{algorithm2e}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
@@ -49,19 +50,19 @@
 
 \begin{titlepage}
 \begin{abstract}
-Abstract write last.
+The one-dimensional Poisson equation has been solved by developing two versions tridiagonal matrix algorithm, including using known methods of solving linear equations, in LU decomposition and Armadillos $solve()$. We look at the numerical accuracy, run time and memory used by the different algorithms. Our tridiagonal matrix algorithms, are found to be considerably faster than LU decomposition, with a factor of ~1000. As well as needing a lot less memory. For solving numerical problems it is important to develop algorithms to solve our problems efficiently where possible. This is to reduce loss of numerical precision, memory needed and run time. We found that for our general algorithm, the optimal steplength was $\sim10^{5}$, whilst for our specialized algorithm the steplength was $\sim10^{6}$. 
 \end{abstract}
 \maketitle
 \tableofcontents
 \end{titlepage}
 
 \section{Introduction}
-The use of differential equation has a sentral role in every branch of science. Linear second-order differential equations cover many of the important differential equations. Many of which can be manipulated to be solved as a linear algebra problem, for which we can develop algorithms to solve to problems numerically. There are limitations when it comes to numerically solutions. If the number of floating point operations(FLOPs) becomes too big the calculations can get exceedingly slow. One can also risk numerical inaccuracies simply due to a high amount of FLOPs. This puts the emphasis on developing algorithms which are stable, accurate and quick. 
+Linear second-order differential equations plays a central part in science and solving these numerically save us many many hours of struggeling to find analytical solutions to these equations. The differential equations can be manipulated to linear algebra problems, for which we can develop algorithms to solve to problems numerically. There are limitations when it comes to numerically solutions. If the number of floating point operations(FLOPs) becomes too big the calculations can get exceedingly slow. Another risk is loss of numerical precision from how numbers are stored in a computer and the amount of FLOPs we perform. This puts the emphasis on developing algorithms which are stable, accurate and quick. 
 In this project we will take a look at solving the one-dimensional Poisson equation with Dirichlet boundary conditions by rewriting it as a set of linear equations. Excplicitly we want to solve the following equation
 \begin{equation}
 -u''(x) = f(x), \quad x\in(0,1), \quad u(0)=u(1)=0.\label{eq:base}
 \end{equation}
-We will device an algorithm for a tridiagonal matrix, both the general case and a specialized case. Including, we will take a look at the more general method of solving matrix equations using LU-decomposition, comparing run times and space between the different algorithms. In addition to looking at relative error and finding the mesh-grid which gives the best approximation. Lastly, the findings will be discussed. 
+Firstly the background for the Poisson equations, how the second derivative can be approximated and theory behind LU decomposition will be presented. Secondly, two algorithms will be developed and implemented through psuedocode. Thirdly, the performance of the algorithms will be presented. Lastly, the findings will be discussed and some concluding remarks. 
 
 
 \section{Theory}
@@ -135,6 +136,37 @@ where $\mathbf{A}$ is an $n\times n$ tridiagonal matrix which we found in \ref{e
 0 & \dots & \dots & 0 & -1 & 2
 \end{bmatrix}
 \end{equation}
+
+\subsection{LU decomposition}
+The general method for solving linear equations with dense non-singular matricies is using LU decomposition. The method involves taking a matrix $\mathbf{A}$ and rewriting it into the product of a lower triangular matrix $\mathbf{L}$ and an upper triangular matrix $\mathbf{U}$. 
+\begin{align*}
+\mathbf{A} &= \mathbf{L}\mathbf{U}\\
+\begin{bmatrix}
+	a_{11} & a_{12} & a_{13} & a_{14} \\
+	a_{21} &a_{22} &a_{23} &a_{24} \\
+	a_{31} &a_{32} &a_{33} &a_{34}  \\
+	a_{41} &a_{32} &a_{43} &a_{44} 
+\end{bmatrix}
+&= 
+\begin{bmatrix}
+1& 0 & 0 & 0 \\
+ l_{21}& 1& 0 & 0\\
+ l_{31}&l_{32}&1& 0\\
+ l_{41}&l_{42}&l_{43}&1
+\end{bmatrix}
+\begin{bmatrix}
+u_{11}& u_{21}&u_{31}&u_{41}\\
+0 & u_{22} & u_{23}& u_{24} \\
+0 & 0 & u_{33}& u_{34}\\
+0 & 0 & 0 & u_{44}
+\end{bmatrix}
+\end{align*}
+
+This gives us a new way of solving $\mathbf{A}\vec{x}=\vec{b}$, where we can look at simpler equations to solve the problem
+\begin{equation}
+\mathbf{L}\mathbf{U}\vec{x} = \vec{b} \rightarrow \mathbf{L}\vec{w} = \vec{b}, \quad \mathbf{U}\vec{x} = \vec{w}
+\end{equation}
+Where the above set of equations can be solved through backwards substitution. 
 
 \section{Algorithms} 
 For all programs, benchmark calulations and plots, see: \\
@@ -357,70 +389,72 @@ this can be shown to be true through, for example induction. This can be found b
 
 If we take a look at the number of FLOPs in our specialized algorithm we see that we have 2 FLOPs for each of the loops, running $n-1$ times. Thus our specialized algorithm has in total $4(n-1)+1$ FLOPs $=(4n-3)$ FLOPs. For large $n$ we have $4n$ FLOPs. If we compared this to the generalized algorithm, we see that it is a factor $2$. 
 
-\subsection{LU Decomposition}
-The general method for solving dense non-singular matrix is using LU decomposition. The method involves taking a matrix $\mathbf{A}$ and rewriting it into the product of a lower triangular matrix $\mathbf{L}$ and an upper triangular matrix $\mathbf{U}$. 
-\begin{align*}
-\mathbf{A} &= \mathbf{L}\mathbf{U}\\
-\begin{bmatrix}
-	a_{11} & a_{12} & a_{13} & a_{14} \\
-	a_{21} &a_{22} &a_{23} &a_{24} \\
-	a_{31} &a_{32} &a_{33} &a_{34}  \\
-	a_{41} &a_{32} &a_{43} &a_{44} 
-\end{bmatrix}
-&= 
-\begin{bmatrix}
-1& 0 & 0 & 0 \\
- l_{21}& 1& 0 & 0\\
- l_{31}&l_{32}&1& 0\\
- l_{41}&l_{42}&l_{43}&1
-\end{bmatrix}
-\begin{bmatrix}
-u_{11}& u_{21}&u_{31}&u_{41}\\
-0 & u_{22} & u_{23}& u_{24} \\
-0 & 0 & u_{33}& u_{34}\\
-0 & 0 & 0 & u_{44}
-\end{bmatrix}
-\end{align*}
+\subsection{LU Decomposition and Armadillo $solve()$}
+We will not be developing and implementing an algortihm for LU decomposition. However two different approaches will be used. The high level C++ library Armadillo contains a lot of method within linear algebra for solving linear systems and matrix equations. It has a functionality to perform an LU decomposition, but to solve the linear set afterwards you will need to either manually do the backwards substitution or invoke the functions $solve()$ which we will take a quick look at. In short the function solve does a quick analysis of the input matrix and chooses the most efficient way of solving the problem. This means in turn that it is not certaint that the method of choice will be LU decomposition, but for our study a method more effecient at solving tridiagonal systems may be used. This will be used as a semi baseline agaisnt the traditional LU decomposition and our general and specialized methods. 
 
-This gives us a new way of solving $\mathbf{A}\vec{x}=\vec{b}$, where the problem can be solved in two steps 
-\begin{equation}
-\mathbf{L}\mathbf{U}\vec{x} = \vec{b} \rightarrow \mathbf{L}\vec{w} = \vec{b}, \quad \mathbf{U}\vec{x} = \vec{w}
-\end{equation}
-We can solve $\mathbf{L}\vec{w} = \vec{b}$ by forward substitution and $\mathbf{U}\vec{x} = \vec{w}$ by backward substitution. 
-
-Here we will not develop or implementing an algorithm for LU decomposition. We will use the high level library Armadillo and implement the course functions which can be found in the code folder on github, named lib.h. We are interested in the difference in runtime between the general algorithm, specialized algorithm and LU decomposition. Also included is the Armadillo function $solve$ which is adaptable and choose the quickest possible solution to the linear system. We remember that for the general algorithm the number of FLOPs needed goes like ($8n$)FLOPs and for the specialized we were able to reduce it to ($4n$)FLOPs. For LU decomposition, as we are not working with vectors, but entire matricies. The number of FLOPs needed to LU decompose a matrix is ($2/3 n^3$)FLOPs\cite{morten}. We would expect that using LU decomposition to solve the problem would result in a solver execution time going $n^2$. 
+On the other hand the LU decomposition will be done by a function found in the lib.hpp on github\footnote{https://github.com/SigurdSundberg/FYS3150/tree/master/project1/code}. This will function as a base line for LU decomposition and solving the linear algebra problem. This will give us a good set of comparison in runtimes between our general algorithm, the specialized algorithm, Armadillos $solve()$ and the standard LU decomposition. Looking at the normal way of approximating runtime we have found that our general algorithm has ($8n$)FLOPs. For our specialized algorithm this is reduced to ($4n$)FLOPs. So we would assume our special algorithm runs roughly twice as fast as the general algorithm. We can not say anything for certaint when it comes to Armadillos $solve()$ as knowing method it uses is not trivial. The benchmark for our test being LU decomposition has ($2/3 n^2$)FLOPs\cite{morten}. We would expect the LU decomposition to be roughly 100 times slower than either of our algorithms. 
 
 \section{Results}
 \subsection{Relative error}
-Here we will take a look at the relative error between the algorithms implemented. 
+From figure \ref{fig:general} we can see the general algorithm numerical solutions plotted against the analytical solution given by $u(x) = 1-(1-e^{-10})x-e^{-10x}$. We can see that even for $h=3$ that our approximation of the solution to one dimensional Poisson equation is already very precise. Looking at the plots in figure \ref{fig:fig} we have the relative error from both the general algortihm and the specialized algorithm plotted against the power of 10 for each $n$ that the program was ran for. Here an destinctive difference between the general and specialized algorithm is shown. We see that the specialized algorithm is accurate all the way down to $h=6$ and the numerical error starts increasing for $h>6$. Whilst for the general algorithm this increase can already be seen for $h>5$. 
+\begin{figure}
+\begin{subfigure}[b]{0.45\textwidth}
+ \centering
+ \includegraphics[width=0.9\linewidth]{../code/plots/error_general.png}
+ \caption{The maximum deviation between the analytical solution and numerical solution for each $h$ for the general algorithm. This is presented as a log-log plot to account for the large differences in values. $h$ is the power of 10 for that spesific run.}
+ \label{fig:errgeneral}
+\end{subfigure}
+\quad
+\begin{subfigure}[b]{0.45\textwidth}
+ \centering
+ \includegraphics[width=0.9\linewidth]{../code/plots/error_special.png}
+ \caption{The maximum deviation between the analytical solution and numerical solution for each $h$ for the specialzied algorithm. This is presented as a log-log plot to account for the large differences in values. $h$ is the power of 10 for that spesific run.}
+ \label{fig:errspecial}
+\end{subfigure}
+\caption{Plots of the output data from the running of accompanying functions. Being general tridiagonal method and specialized tridiagonal method.}
+\label{fig:fig}
+\end{figure}
+
+\begin{figure}
+ \centering
+ \includegraphics[width=0.9\linewidth]{../code/plots/plot_general.png}
+ \caption{Plot of the specialized algorithm against the analytical solution. The plot shows runs for of the specialized algorithm with $h = 1, 2, 3$. End points are skipped in the plot for numerical solutions, as they do not affect the calculations and are set as $u(0) = u(n) = 0$.}
+ \label{fig:general}
+\end{figure}
 \subsection{CPU time}
+An important factor noted earlier was the difference in run time for the algorithms. In table \ref{tab:solver_times} it is clear that the relationship between runtimes is as expected. Data from Armadillo $solve()$ and lib.hpp functions are not included for $n>4$ as the tests where limited by memory. We clearly see that the relationship between the general and specialized algorithm is close to 1.5. Whilst for $solve()$ we can see that for $n=1$ that it performs significantly worse than for $n=2$. This could easily be to the analysis factor within the function. Including, running the normal LU decomposition for a 5x5 matrix, would not be sustainable. Performing an LU decomposition on a 4x4 matrix already takes around $\sim21$ minutes and increasing $n$ would result in another factor of $\sim$1000 increase in runtime. 
 \begin{table}[h]
-\caption{Table covering runtimes from semi-cold starts for all four algorithms used. Thoose being General, Specialized, Armadillos $solve$ and the library functions from lib.hpp. Data for Armadillo $solve$ and lib.hpp are not included for $n>4$ as it is limited by memory and could not be run in this test. All times are listed in seconds, unless spesified.}
+\caption{Table covering runtimes non-cold starts for all four algorithms used. Thoose being General, Specialized, Armadillos $solve$ and the library functions from lib.hpp. Data for Armadillo $solve$ and lib.hpp are not included for $n>4$ as it is limited by memory and could not be run in this test. All times are listed in seconds, unless spesified.}
 \begin{tabular}{lcccc}
 \hline
  $10^n$ & General & Specialized & $solve$ & lib.hpp \\ \hline
- 1 & 0.00000024 & 0.00000021 & 0.00303977 & 0.00002143 \\
- 2 & 0.00000164 & 0.00000140 & 0.00008639 & 0.00325874\\
- 3 & 0.00001927 & 0.00001484 & 0.00644989 & 0.98828253\\
- 4 & 0.00021870 & 0.00014394 & 0.58261636 & ~42 minutes\\
+ 1 & 0.00000024 & 0.00000021 & 0.00303977 & 0.00000318 \\
+ 2 & 0.00000164 & 0.00000140 & 0.00008639 & 0.00031194\\
+ 3 & 0.00001927 & 0.00001484 & 0.00644989 & 0.44017580\\
+ 4 & 0.00021870 & 0.00014394 & 0.58261636 & $\sim$21 minutes\\
  5 & 0.00223254 & 0.00147353 & n/a & n/a\\
  6 & 0.02110298 & 0.01508435 & n/a & n/a 
  \end{tabular}
 \label{tab:solver_times}
 \end{table}
-
-\begin{figure}[h]
- \centering
- \includegraphics[width=0.9\linewidth]{../code/plots/plot_general.png}
- \caption{Plot of the specialized algorithm against the analytical solution. The plot shows runs for of the specialized algorithm with $n = 1, 2, 3$. End points are skipped in the plot for numerical solutions, as they do not affect the calculations and are set as $u(0) = u(n) = 0$.}
- \label{fig:special}
-\end{figure}
-
-
 \section{Discussion}
-Discussion of the report.
+LU is a general algorithm , which works for all non-singular matricies and as such can be applied to almost any problem where $n$ is small. Our general algorithm takes a tridiagonal matrix and reduces it into a simpler algorithm which can handle a bigger $n$ at a much faster pace. Giving us a more efficent algorithm than for a dense matrix, where an entire $n$x$n$ matrix would need to be store, the general algorithm relies on three arrays of length $n$. 
+
+As seen in talbe \ref{tab:solver_times} we can see that for the LU decomposition that for runtime the increase goes like $n$ cubed. Which makes it intolerable for larger $n$. On the same note, LU decomposition suffers from memory limitations, where memory needed goes like $n$ squared. For example for $h=5$ if we store the elements in our $n$x$n$ matrix $\mathbf{A}$ as doubles, we would need $8\times (10^5)^2 = 8 \times 10^10$ bytes on our computer. This is way more than any normal laptop or stationary computer have the ability to store, at $80$ giga bytes. If we where to need all three matrcies from an LU decomposition, namely A, L, U, we would need three times that amount to store all the matricies. This is way within reach that of a supercomputer\cite{OhioSupercomputerCenter1987}, however highly unnecessary when you have a tridiagonal matrix, or a matrix which can be solve with more efficient methods. 
+
+This makes algorithm such as our general algorithm for a tridiagonal matrix and our specialized algorithm important parts of optimizing algorithms to be able to numerically solve problems at a fraction of the time, at a higher precision. This is apparent by looking at the number of FLOPs needed between especially LU and our specialized algorithm. However at the ability to run our program at lager values of $h$. Runtime wise we could go upto a very high value $n$ without reaching LU decomposition levels of runtime. However as seen in figure \ref{fig:general} we run into another problem with numerical analsys already at $n>10^5$. This is loss of numerical precision, due to the way computers store floating points numbers. Not all numbers can be represented exactly. For a double value in C++, we can store 64 bits of information, and this needs to store our entire number. Everything that does not fit, gets rounded off. The round off is very small, however when we perform FLOPs on the round off error quickly increase. If we perform a large amount of FLOPs on a number in one iteration, and keep doing so for the following, we can end up with an answer deviating far from our expected value. We can see a clear example of this in the difference between our general and specialized algorithm seen in figure \ref{fig:errgeneral} and \ref{fig:errspecial}. The specialized algorithm has roughly ($4n$)FLOPs and we can see that the algorithm suffers less from loss of numerically precision compared to the ($8n$)FLOPs for our general algorithm. 
+
+The loss of numerical precision could also affect LU decomposition, as performing the decomposition goes like $\mathcal{O}(n^3)$FLOPs, however here we have a trade off between memory and numerical precision. If we take a look at the relationship between the runtime of the general algorithm and specialized algorithm, we would expect it to be of a factor 2. However not all FLOPs takes an equal amount of time, for small $n$ this is apparent. However as $n$ increases we should be able to see this relationship trending towards 2, at a loss of numerical precision, for $h>6$. 
+
+
 \section{Conclusion}
-Conclusion of the report.
+As we have seen, the importance of developing efficient algorithms is essential to solving numerical problems. We have experienced the loss of numerical precision due to round off error and FLOPs. And looked at the ever increasing run time of general LU decomposition and memory limitations which comes with storing $n$x$n$ matricies in memory. 
+We countered this by finding a discretized form of the second derivative and turning it into a linear algebra problem. Where we developed a general algorithm, which solved both the problem with memory and run time. With our specialized algorithm we were able to even further improve run time and reduced memory used. But we were still limited by numerical precision. 
+
+Our specialized and general algorithm can be applied to most one dimensional second derivative problems with Dirichlet boundary conditions, and is a good way of solving such problems. Whilst LU decomposition still is the preffered choice for dense non-singular matricies, we also discorved that Armadillos $solve()$ is a good middle ground. The $solve()$ function proves to be a good choice, if the input matrix is not necessarily known, or developing an algorithm proves to be hard. Its runtime for dense non-singular matricies, is around the same as LU decomposition. 
+
+Through brute force testing the specialized algorithm can possibly be improved, however the gain from doing so is marginal. The main limiter of this method is loss of numerical precision. For the remaining methods, all are as optimized as they can\cite{morten}. 
+For the Armadillo\cite{Sanderson2016}\cite{DBLP:journals/corr/abs-1805-03380} library, we can only assume that the methods used are the most efficient ones known today. 
 
 %\section{Theory}
 %\subsection{The Poisson Equation}

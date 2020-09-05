@@ -31,3 +31,5 @@ report.out
 # C++ files
 *.x
 *.o
+test.cpp
+
