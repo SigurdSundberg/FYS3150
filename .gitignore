@@ -4,8 +4,11 @@ Makefile
 /project1/code/output/*
 /project1/code/Trash/*
 project0
+TODO.txt 
+
 #Python files not to be included
 run.py
+
 # Latex dumb files and alike
 *.aux
 *.fdb*
@@ -17,12 +20,14 @@ run.py
 *.blg
 *.dvi
 *.bbl
+
 # Accompaning latex files
 report.txt
 report.pdf
 preamble.tex
 table.txt
 report.out
+
 # C++ files
 *.x
 *.o
