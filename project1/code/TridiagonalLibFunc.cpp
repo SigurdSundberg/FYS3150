@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         double d;
         double *x = new double[n];
 
-        double h = 1.0 / (n + 1);
+        double h = 1.0 / (n - 1);
         double hh = h * h;
 
         // setup values in matricies and vectors

@@ -59,7 +59,7 @@ int main(int argc, char *argv[])
         string time_fileout = "timed_" + fileout;
 
         //Initialization of vectors
-        double h = 1.0 / (n);
+        double h = 1.0 / (n - 2);
         double hh = h * h;
         // shift the matrix so only the part between the endpoints is studied
         n = n - 1; // n n-1
