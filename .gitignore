@@ -3,8 +3,14 @@
 Makefile
 /project1/code/output/*
 /project1/code/Trash/*
+/pdf
+/catch
 project0
 TODO.txt 
+test.txt
+
+# Projects added to ignore after handed in
+/project1
 
 #Python files not to be included
 run.py
