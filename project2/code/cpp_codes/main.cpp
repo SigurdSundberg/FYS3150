@@ -1,46 +1,101 @@
 #include <armadillo>
 #include <chrono>
+#include <cmath>
+#include <string>
 
-#include "functions.h" // Placeholder name, use if nothing better comes to mind
+#include "jacobi_rotation.h"
+
 using namespace arma;
 using namespace std;
 
-// Very basic code
-
-void jacobi_rotation(mat A, mat R, int k, int l, int n)
+int main(int argc, char const *argv[])
 {
-    /* code */
-}
+    int max_iterations, iterations, n, p, q, interact;
+    double epsilon, max_element, h, xmin, xmax;
+    string filename;
 
-void cst()
-// This should be implemented in jacobi_rotation later on, and not left as it's own function. Could be if need be
-{
-    double s, c;
-    if (A(k, l) != 0, 0)
+    // Setting input arguments from command line to respective values
+    if (argc <= 6)
     {
-        double tau, t;
-        // Following should be in a for-loop
-        tau = (A(l, l) - A(j, j)) / A(j, l); // Values for tau
-        if (True)
-        {
-            t = tau; //...
-        }
-        else
-        {
-            t = tau; //...
-        }
-        c = 1 / sqrt(1 + t * t);
-        s = t * c;
+        cout << "Bad usage: " << argv[0] << "number of meshgrid points, max iterations and type of problem, and filename" << endl;
+        exit(1);
     }
     else
     {
-        c = 1.0;
-        s = 0.0;
+        n = atoi(argv[1]);
+        max_iterations = atoi(argv[2]);
+        interact = atoi(argv[3]);
+        filename = argv[4];
+        xmin = atoi(argv[5]);
+        xmin = atoi(argv[6]);
     }
-}
 
-void main(int argc, char const *argv[])
-{
-    /* code */
+    // Defining our initial constants and matricies
+    mat A = zeros<mat>(n, n);
+    mat R = zeros<mat>(n, n);
+
+    iterations = 0;
+    p = 0;
+    q = 0;
+    epsilon = 1e-8;
+
+    h = (xmax - xmin) / (double(n));
+
+    // initializing the problem
+    initialize(interact, A, R, n, h);
+    max_element = fabs(A(n - 1, n - 2)); // choosing the last off diagonal element
+
+    /*
+        Using Armadillos eigensolver for symmetrical matricies
+        Timing it for comparison
+    */
+    auto startA = chrono::high_resolution_clock::now();
+    vec eigen_values_arma = eig_sym(A);
+    auto finishA = chrono::high_resolution_clock::now();
+
+    /*
+        Start of the Jacobi rotations method
+        With timing
+    */
+    auto start = chrono::high_resolution_clock::now();
+    while (max_element > epsilon && iterations < max_iterations)
+    {
+        find_max_element(A, n, max_element, p, q);
+        rotate_matrix(A, R, n, p, q);
+
+        // To keep track of iterations.
+        iterations++;
+        if (iterations % 500 == 0)
+        {
+            cout << iterations << endl;
+        }
+    }
+    auto finish = chrono::high_resolution_clock::now();
+
+    /* 
+        Printing the time used by both Armadillo and Jacobi's method 
+        Creating a vector to include both data values 
+        Create a new filename for time file
+        Write to file 
+    */
+    double time_Armadillo = chrono::duration_cast<chrono::nanoseconds>(finishA - startA).count() / pow(10, 9);
+    cout << "Time used by Armadillo's eigenvalue solver:" << endl;
+    cout << "Time used for n = " << n << ": " << time_Armadillo << "s" << endl;
+
+    double time_Jacobi = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
+    cout << "Time used by Jacobi's method:" << endl;
+    cout << "Time used for n = " << n << ": " << time_Jacobi << "s" << endl;
+    cout << "Number of iterations " << iterations << endl;
+
+    vec data;
+    data << time_Jacobi << time_Armadillo;
+    string time_filename = "time_J_A_" + filename;
+    write_to_file(time_filename, data);
+
+    /* 
+        Explanation of next part 
+    */
     return 0;
 }
+
+// ofile << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9) << endl;
