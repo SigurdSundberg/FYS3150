@@ -1,13 +1,14 @@
 import sys
+from os import system
 import os
-
+import subprocess
 
 """
 Here goes all autmation of running the program, preferably without comandline arguments, rather use input. 
 
 Also remember to make a run.py file if taking commandline arguments when running everything
 """
-
+"""
 # Getting input, either from commandline(for automation) or from input, individual running.
 if len(sys.argv > 8):
     raise Exception("Too few input arguments where given. 6 needed in total.")
@@ -23,11 +24,11 @@ elif len(sys.argv > 1):
 else:
     problem = input("Which problem is solved? [bb/qd1m]")
     comp = input("Do you want to compile the files? [y/n]")
-    n = input("Number of gridpoints? [10^n]")
+    test = input("Do you want to run unit tests? [y/n]")
+    n = input("Number of gridpoints? [int]")
     max_it = input("Max number of iterations? [int/d]")  # d = n * n * n
     plot = input("Do you want to plot the data? [y/n]")
     delete = input("Do you want to delete the output files? [y/n]")
-    test = input("Do you want to run unit tests? [y/n]")
 
 
 # File management
@@ -44,12 +45,13 @@ if problem == "qd1m":
     path_data = ""
     path_plot = ""
 
-
+"""
+comp = "y"
 # Compiler
 if comp == "y":
-    a = -1
-    # Call makefile, with compiler for cpp
+    system("cd cpp_codes/ && make")
 
+"""
 if test == "y":
     a = -1
     # call makefile for test.cpp and run the tests to see if programs do as expected
@@ -67,3 +69,13 @@ if plot == "y":
 if delete == "y":
     a = -1
     # Delete files
+"""
+
+
+"""
+an attempt at compiling using make and subprocess but desired output not present.
+    output = subprocess.Popen(
+        ["make"], stdout=subprocess.PIPE,  cwd="./cpp_codes")
+    stdout = output.communicate()[0]
+    print(stdout)
+    """

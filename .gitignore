@@ -1,3 +1,8 @@
+# Exlude files with no extensions
+*
+!/**/
+!*.*
+
 # Folders and misc files
 .vscode
 Makefile
@@ -8,6 +13,7 @@ Makefile
 project0
 TODO.txt 
 test.txt
+
 
 # Projects added to ignore after handed in
 /project1
