@@ -11,21 +11,27 @@ TARGET = main
 all: ${PROG} ${TARGET}
 
 ${PROG} :	   	test-main.o  test-functions.o jacobi_rotation.o
-			${CPPflags} test-main.o test-functions.o jacobi_rotation.o ${LIB} -o ${PROG}
+				${CPPflags} test-main.o test-functions.o jacobi_rotation.o ${LIB} -o ${PROG}
 
-${TARGET} :	   	main.o jacobi_rotation.o
-			${CPPflags} main.o jacobi_rotation.o ${LIB} -o ${TARGET}
+${TARGET} :	   	main.o jacobi_rotation.o write_to_file.o
+				${CPPflags} main.o jacobi_rotation.o write_to_file.o ${LIB} -o ${TARGET}
 
-tests-main.o :			tests-main.cpp 
+tests-main.o :		tests-main.cpp 
 		        	${CPPflags} -c test-main.cpp
 
-test-functitons.o :			test-functions.cpp
+test-functitons.o :	test-functions.cpp
 		        	${CPPflags} -c test-functions.cpp
 
-jacobi_rotation.o :		jacobi_rotation.cpp 
+jacobi_rotation.o :	jacobi_rotation.cpp jacobi_rotation.h
 		        	${CPPflags} -c jacobi_rotation.cpp
+					
+write_to_file.o : 	write_to_file.cpp write_to_file.h
+				${CPPflags} -c write_to_file.cpp					
 
-main.o: main.cpp
-		${CPPflags} -c main.cpp
+main.o : 		main.cpp write_to_file.h jacobi_rotation.h
+				${CPPflags} -c main.cpp
+				
+# clean :
+				
 
 

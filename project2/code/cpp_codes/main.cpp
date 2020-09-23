@@ -7,23 +7,10 @@
 #include <string>
 
 #include "jacobi_rotation.h"
+#include "write_to_file.h"
 
 using namespace arma;
 using namespace std;
-
-ofstream ofile;
-
-// void write_to_file(string filename, vec data)
-// {
-//     ofstream ofile;
-//     ofile.open("./output/" + filename);
-//     ofile << setiosflags(ios::scientific);
-//     int n = data.n_elem;
-//     for (int i = 0; i < n; i++)
-//     {
-//         ofile << data(i) << endl;
-//     }
-// }
 
 int main(int argc, char const *argv[])
 {
@@ -43,9 +30,14 @@ int main(int argc, char const *argv[])
         interact = atoi(argv[2]);
         filename = argv[3];
         xmin = atoi(argv[4]);
-        xmin = atoi(argv[5]);
+        xmax = atoi(argv[5]);
     }
     cout << "Interact: " << interact << endl; // 0, 1, 2. [BB], [QD 1], [QD 2]
+
+    // Filename for output file
+    string data_filename = "data_" + filename + to_string(n);
+    string time_filename = "time_Comparison_" + filename;
+    string iter_filename = filename;
 
     // Defining our initial constants and matricies
     mat A = zeros<mat>(n, n);
@@ -53,7 +45,7 @@ int main(int argc, char const *argv[])
 
     iterations = 0;
     max_iterations = n * n * n; // Upper limit, expectation is of O(n*n)
-    p = 0;                      // ROw element
+    p = 0;                      // Row element
     q = 0;                      // Column element
     epsilon = 1e-12;            // Convergence tolerance
 
@@ -61,7 +53,6 @@ int main(int argc, char const *argv[])
 
     // initializing the problem
     initialize(interact, A, n, h);
-    max_element = fabs(A(n - 1, n - 2)); // choosing the last off diagonal element
 
     /*
         Using Armadillos eigensolver for symmetrical matricies
@@ -78,20 +69,6 @@ int main(int argc, char const *argv[])
 
     jacobi(A, R, n, epsilon, max_iterations);
 
-    /* (This is implemented in the jacobi function, for easier use)
-    while (max_element > epsilon && iterations < max_iterations)
-    {
-        find_max_element(A, n, max_element, p, q);
-        rotate_matrix(A, R, n, p, q);
-
-        // To keep track of iterations.
-        iterations++;
-        if (iterations % 500 == 0)
-        {
-            cout << iterations << endl;
-        }
-    }*/
-
     auto finish = chrono::high_resolution_clock::now();
 
     /*
@@ -100,22 +77,24 @@ int main(int argc, char const *argv[])
         Create a new filename for time file
         Write to file
     */
-    cout << "Time used for n = " << n << " in seconds" << endl;
-    double time_Armadillo = chrono::duration_cast<chrono::nanoseconds>(finishA - startA).count() / pow(10, 9);
-    cout << "Armadillo " << time_Armadillo << endl;
+    // [1] Not in use, uncomment when needing to write timedata to file or print time.
+    // double time_Armadillo = chrono::duration_cast<chrono::nanoseconds>(finishA - startA).count() / pow(10, 9);
+    // double time_Jacobi = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
 
-    double time_Jacobi = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
-    cout << "JacobisMethod " << time_Jacobi << endl;
-    // cout << "Number of iterations " << iterations << endl; // Implemented in jacobi()
+    // cout << " " << endl;
+    // cout << setw(3) << "n " << setw(15) << "Armadillo" << setw(15) << "JacobisMethod" << endl;
+    // cout << setw(3) << n << setw(15) << time_Armadillo << setw(15) << time_Jacobi << endl;
+    // cout << " " << endl;
 
-    // string time_filename = "time_J_A_" + filename;
-    // ofile.open("./output/" + time_filename);
-    // ofile << setiosflags(ios::scientific);
-    // ofile << "Armadillo " << time_Armadillo << endl;
-    // ofile << "JacobiMethod " << time_Jacobi << endl;
-    // ofile.close();
+    // Uncomment this if oyu want to write to file
+    // write_to_file_time(time_filename, time_Armadillo, time_Jacobi, n);
+    /* 
+    // Write eigenvectors and eigenvalues to file. Uncomment when needed
+    vec A_eig = diagvec(A);
+    write_to_file_data(data_filename, A_eig, R);
 
+    write_to_file_iterations(iter_filename, n, max_iterations);
+    */
     return 0;
 }
-
 // ofile << chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9) << endl;
