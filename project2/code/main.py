@@ -3,62 +3,65 @@ from os import system
 import os
 import subprocess
 
-"""
-Here goes all autmation of running the program, preferably without comandline arguments, rather use input. 
+# ????????????????
+# Here goes all autmation of running the program, preferably without comandline arguments, rather use input.
+#
+# Also remember to make a run.py file if taking commandline arguments when running everything
 
-Also remember to make a run.py file if taking commandline arguments when running everything
-"""
-"""
+
 # Getting input, either from commandline(for automation) or from input, individual running.
-if len(sys.argv > 8):
-    raise Exception("Too few input arguments where given. 6 needed in total.")
-elif len(sys.argv > 1):
+if (len(sys.argv) > 5):
+    raise Exception("Too many input arguments where given. 6 needed in total.")
+elif (len(sys.argv) > 2):
     problem = sys.argv[1]
-    comp = sys.argv[2]
-    test = sys.argv[3]
-    n = sys.argv[4]
-    max_it = sys.argv[5]
-    plot = sys.argv[6]
-    delete = sys.argv[7]
+    n = sys.argv[2]
+    plot = sys.argv[3]
+    delete = sys.argv[4]
 
 else:
-    problem = input("Which problem is solved? [bb/qd1m]")
-    comp = input("Do you want to compile the files? [y/n]")
-    test = input("Do you want to run unit tests? [y/n]")
-    n = input("Number of gridpoints? [int]")
-    max_it = input("Max number of iterations? [int/d]")  # d = n * n * n
-    plot = input("Do you want to plot the data? [y/n]")
-    delete = input("Do you want to delete the output files? [y/n]")
+    problem = input("Which problem is solved? [bb/qd1m] ")
+    n = input("Number of gridpoints? [int] ")
+    plot = input("Do you want to plot the data? [y/n] ")
+    delete = input("Do you want to delete the output files? [y/n] ")
 
+
+# Compiling using makefile
+print("Compiling ...")
+system("cd cpp_codes/ && make")
+print("Compiling done.")
+print("Running tests...")
+system("cd cpp_codes/ && ./testcode")
+print("Testing done.")
 
 # File management
 if problem == "bb":
     problem = "BucklingBeam"
     filename_plot = ""
-    filename_data = ""
-    path_data = ""
-    path_plot = ""
+    filename_data = "BB"
+    path_data = "./BB_data"
+    path_plot = "./BB_plot"
+
+    a = "&&"
+    for i in ([10, 25, 75, 100, 150, 200, 300, 500]):
+        system("cd cpp_codes/ " + a + " ./main " + str(i) +
+               " 0 " + filename_data + str(i) + " 0 1")
+
+    # Directory management (This is done as long as the programs are ran)
+    if not os.path.exists(path_data):
+        os.makedirs(path_data)
+
+    if delete == "y":
+        system("rm -f " + path_data + "*")
+
+
 if problem == "qd1m":
     problem = "QD_oneElectron"
     filename_plot = ""
     filename_data = ""
-    path_data = ""
-    path_plot = ""
+    path_data = "./QD_data"
+    path_plot = "./QD_plot"
 
-"""
-comp = "y"
-# Compiler
-if comp == "y":
-    system("cd cpp_codes/ && make")
 
-"""
-if test == "y":
-    a = -1
-    # call makefile for test.cpp and run the tests to see if programs do as expected
-
-# Directory management (This is done aslong as the programs are ran)
-if not os.path.exists(path_data):
-    os.makedirs(path_data)
 # Move files and handle them
 
 if plot == "y":
@@ -66,16 +69,9 @@ if plot == "y":
         os.makedirs(path_plot)
     # Move files
 
-if delete == "y":
-    a = -1
-    # Delete files
-"""
 
-
-"""
-an attempt at compiling using make and subprocess but desired output not present.
-    output = subprocess.Popen(
-        ["make"], stdout=subprocess.PIPE,  cwd="./cpp_codes")
-    stdout = output.communicate()[0]
-    print(stdout)
-    """
+# an attempt at compiling using make and subprocess but desired output not present.
+# output = subprocess.Popen(
+#     ["make"], stdout=subprocess.PIPE,  cwd="./cpp_codes")
+# stdout = output.communicate()[0]
+# print(stdout)
