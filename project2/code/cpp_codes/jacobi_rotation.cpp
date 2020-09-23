@@ -15,6 +15,34 @@ Spesification of functions
 using namespace std;
 using namespace arma;
 
+void jacobi(mat &A, mat &R, int n, double tol, int max_iterations)
+{
+    int p = 0, q = 0, iterations = 0;
+    double max_element = fabs(A(n - 1, n - 2));
+    while (max_element > tol && iterations < max_iterations)
+    {
+        //cout << "max ele: " << max_element << endl;
+        find_max_element(A, n, max_element, p, q);
+        //cout << "found: " << max_element << endl;
+        //cout << max_element << endl;
+        rotate_matrix(A, R, n, p, q);
+        //cout << "A" << A << endl;
+        //cout << " " << endl;
+        //cout << "R" << R << endl;
+        iterations++;
+        // To keep track of iterations. And checking that the program doesn't freeze during testing.
+        /*
+        if (iterations % 500 == 0)
+        {
+            cout << iterations << endl;
+        }
+        */
+    }
+    // [1] Printing number of iterations for different n. (done)
+    cout << "n   iterations" << endl;
+    cout << n << "   " << iterations << endl;
+}
+
 /* 
     ** The function
     **      initialize()
@@ -24,7 +52,7 @@ using namespace arma;
     ** and the steplength of h of the problem. 
     ** Set matrix A and eig_vec to their respective matricies. 
 */
-void initialize(int interact, mat &A, mat &eig_vec, int n, double h)
+void initialize(int interact, mat &A, int n, double h)
 {
     double diagonal, non_diagonal, hh = h * h;
     diagonal = 2. / (hh);
@@ -34,12 +62,13 @@ void initialize(int interact, mat &A, mat &eig_vec, int n, double h)
     double wrr = wr * wr;
     /* 
     Create the eigenvector matrix. Initialized to the orthogonal matrx
-    being the identity matrix
-    */
+    being the identity matrix(Depricated)
+    
     for (int i = 0; i < n; i++)
     {
-        eig_vec(i, i) = 1;
+        R(i, i) = 1;
     }
+    */
 
     /*
     Create vector of rho values if problem is not 0[bb]
@@ -109,6 +138,7 @@ void initialize(int interact, mat &A, mat &eig_vec, int n, double h)
 */
 void find_max_element(mat A, int n, double &max_element, int &p, int &q)
 {
+    max_element = 0;
     for (int i = 0; i < n; i++)
     {
         for (int j = i + 1; j < n; j++)
@@ -130,14 +160,14 @@ void rotate_matrix(mat &A, mat &R, int n, int k, int l)
     if (A(k, l) != 0.0)
     {
         double tau, t;
-        tau = (A(l, l) - A(k, k) / (2.0 * A(k, l)));
+        tau = (A(l, l) - A(k, k)) / (2.0 * A(k, l));
         if (tau >= 0)
         {
-            t = 1.0 / (tau + sqrt(1 + tau * tau));
+            t = 1.0 / (tau + sqrt(1.0 + tau * tau));
         }
         else
         {
-            t = -1.0 / (-tau + sqrt(1 + tau * tau));
+            t = -1.0 / (-tau + sqrt(1.0 + tau * tau));
         }
         c = 1.0 / sqrt(1.0 + t * t);
         s = t * c;
@@ -174,17 +204,6 @@ void rotate_matrix(mat &A, mat &R, int n, int k, int l)
     }
 } // End: function rotate_matrix()
 
-void write_to_file(string filename, vec data)
-{
-    ofstream ofile;
-    ofile.open("./output/" + filename);
-    ofile << setiosflags(ios::scientific);
-    int n = data.n_elem;
-    for (int i = 0; i < n; i++)
-    {
-        ofile << data(i) << endl;
-    }
-}
 /*
 void test_OrthogonalityPreservation(mat A, mat S, int n)
 {
