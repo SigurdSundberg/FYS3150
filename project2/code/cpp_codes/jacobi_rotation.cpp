@@ -15,21 +15,16 @@ Spesification of functions
 using namespace std;
 using namespace arma;
 
-void jacobi(mat &A, mat &R, int n, double tol, int max_iterations)
+void jacobi(mat &A, mat &R, int n, double tol, int &max_iterations)
 {
     int p = 0, q = 0, iterations = 0;
     double max_element = fabs(A(n - 1, n - 2));
     while (max_element > tol && iterations < max_iterations)
     {
-        //cout << "max ele: " << max_element << endl;
         find_max_element(A, n, max_element, p, q);
-        //cout << "found: " << max_element << endl;
-        //cout << max_element << endl;
         rotate_matrix(A, R, n, p, q);
-        //cout << "A" << A << endl;
-        //cout << " " << endl;
-        //cout << "R" << R << endl;
         iterations++;
+
         // To keep track of iterations. And checking that the program doesn't freeze during testing.
         /*
         if (iterations % 500 == 0)
@@ -39,8 +34,8 @@ void jacobi(mat &A, mat &R, int n, double tol, int max_iterations)
         */
     }
     // [1] Printing number of iterations for different n. (done)
-    cout << "n   iterations" << endl;
-    cout << n << "   " << iterations << endl;
+    // cout << "n " << n << " iterations " << iterations << endl;
+    max_iterations = iterations;
 }
 
 /* 
@@ -178,11 +173,12 @@ void rotate_matrix(mat &A, mat &R, int n, int k, int l)
         s = 0.0;
     }
     // Setup the new elements
-    double a_ik, a_il, a_kk, a_ll, r_ik, r_il;
+    double a_ik, a_il, a_kk, a_ll, a_kl, r_ik, r_il;
     a_kk = A(k, k);
     a_ll = A(l, l);
-    A(k, k) = (a_kk * c * c) - (2 * c * s * A(k, l)) + (a_ll * s * s);
-    A(l, l) = (a_ll * c * c) + (2 * c * s * A(k, l)) + (a_kk * s * s);
+    a_kl = A(k, l);
+    A(k, k) = (a_kk * c * c) - (2 * c * s * a_kl) + (a_ll * s * s);
+    A(l, l) = (a_ll * c * c) + (2 * c * s * a_kl) + (a_kk * s * s);
     A(k, l) = 0.0;
     A(l, k) = 0.0;
 
@@ -195,7 +191,7 @@ void rotate_matrix(mat &A, mat &R, int n, int k, int l)
             A(i, k) = a_ik * c - a_il * s;
             A(i, l) = a_il * c + a_ik * s;
             A(k, i) = A(i, k);
-            A(i, l) = A(l, i);
+            A(l, i) = A(i, l);
         }
         r_ik = R(i, k);
         r_il = R(i, l);

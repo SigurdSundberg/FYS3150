@@ -3,7 +3,7 @@ Header file to declare functions
 */
 #include <armadillo>
 
-void jacobi(arma::mat &, arma::mat &, int, double, int);
+void jacobi(arma::mat &, arma::mat &, int, double, int &);
 void initialize(int, arma::mat &, int, double);
 void find_max_element(arma::mat, int, double &, int &, int &);
 void rotate_matrix(arma::mat &, arma::mat &, int, int, int);
