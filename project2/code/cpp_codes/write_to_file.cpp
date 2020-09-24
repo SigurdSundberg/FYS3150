@@ -30,16 +30,16 @@ void write_to_file_data(string filename, vec v_data, mat M_data)
     ofile.close();
 }
 
-void write_to_file_time(string filename, double A, double B, int n)
-{
-    ofile.open("../data/" + filename, ios_base::app);
-    ofile << setw(3) << n << setw(15) << A << setw(15) << B << endl;
-    ofile.close();
-}
-
 void write_to_file_iterations(string filename, int n, int iterations)
 {
     ofile.open("../data/time_iterations_" + filename, ios_base::app);
     ofile << setw(3) << n << setw(15) << iterations << endl;
+    ofile.close();
+}
+
+void write_to_file_time(string filename, double A, double B, double C, int n)
+{
+    ofile.open("../data/" + filename, ios_base::app);
+    ofile << setw(3) << n << setw(15) << A << setw(15) << B << setw(15) << C << endl;
     ofile.close();
 }
