@@ -49,16 +49,16 @@ m2, b2 = fit(x, y2)
 num_values = g(x, m, b)
 num_values2 = g(x, m2, b2)
 
-plt.plot(x, num_values, "k", label="Jacobi: $\log_{10}(I)$")
-plt.plot(x, num_values2, "r", label="Bisection: $\log_{10}(I)$")
+plt.plot(x, num_values, "k", label=r"Jacobi: $\log_{10}(I)$")
+plt.plot(x, num_values2, "r", label=r"Bisection: $\log_{10}(I)$")
 
 plt.errorbar(x, y, yerr=max_error(num_values, y),
              fmt="o", markersize=1,  barsabove=True, label="Datapoints Jacobi", capsize=3, elinewidth=2)
 plt.errorbar(x, y2, yerr=max_error(num_values2, y2),
              fmt="ko", markersize=1,  barsabove=True, label="Datapoints Bisection", capsize=3, elinewidth=2)
 
-plt.xlabel("$\log_{10}(n)$")
-plt.ylabel("$\log_{10}(I)$")  # Iterations
+plt.xlabel(r"$\log_{10}(n)$")
+plt.ylabel(r"$\log_{10}(I)$")  # Iterations
 plt.title("Log/Log plot of iterations vs gridpoints")
 
 plt.annotate(

@@ -88,9 +88,9 @@ A_err = max_error(A, A_mean)
 J_err = max_error(J, J_mean)
 B_err = max_error(B, B_mean)
 
-plt.plot(key_fit, A, "k--", label="$\log10(t)$ Armadillo")
-plt.plot(key_fit, J, "k", label="$\log10(t)$ Jacobi")
-plt.plot(key_fit, B, "k-.", label="$\log10(t)$ Bisection")
+plt.plot(key_fit, A, "k--", label=r"$\log10(t)$ Armadillo")
+plt.plot(key_fit, J, "k", label=r"$\log10(t)$ Jacobi")
+plt.plot(key_fit, B, "k-.", label=r"$\log10(t)$ Bisection")
 
 plt.errorbar(key, J_mean, yerr=J_err,
              fmt="ro", markersize=4,  barsabove=True, label="Datapoints Jacobi", capsize=3, elinewidth=2)
@@ -99,11 +99,11 @@ plt.errorbar(key, A_mean, yerr=A_err,
 plt.errorbar(key, B_mean, yerr=B_err,
              fmt="mo", markersize=4,  barsabove=True, label="Datapoints Bisection", capsize=3, elinewidth=2)
 plt.legend()
-plt.xlabel("$\log_{10}n$")
-plt.ylabel("$\log_{10}t$")  # Time
+plt.xlabel(r"$\log_{10}(n)$")
+plt.ylabel(r"$\log_{10}(t)$")  # Time
 plt.title("Log/Log plot of time vs gridpoints")
 plt.annotate(fr"Armadillo: m = {A_m:.2f}$\pm${A_err:.2f}", [0.75, -1])
 plt.annotate(fr"Jacobi: m = {J_m:.2f}$\pm${J_err:.2f}", [0.75, -1.33])
 plt.annotate(fr"Bisection: m = {B_m:.2f}$\pm${B_err:.2f}", [0.75, -1.66])
 plt.savefig("../BB_plot/timecomp.pdf")
-# plt.show()
+plt.show()
