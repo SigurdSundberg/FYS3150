@@ -20,6 +20,7 @@ test.txt
 
 #Python files not to be included
 run.py
+test.py
 
 # Latex dumb files and alike
 *.aux
