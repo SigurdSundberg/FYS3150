@@ -69,5 +69,5 @@ plt.annotate(
 plt.annotate(fr"Bisection: m = {m2:.3f}", [1, 4.75])
 
 plt.legend(loc=4)
-# plt.savefig("../BB_plot/n_iter.pdf")
-plt.show()
+plt.savefig("../BB_plot/n_iter.pdf")
+# plt.show()
