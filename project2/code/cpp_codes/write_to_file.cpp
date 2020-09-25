@@ -16,7 +16,7 @@ void write_to_file_data(string filename, vec v_data, mat M_data)
 {
     double values;
     ofstream ofile;
-    ofile.open("./output/" + filename, ios_base::out);
+    ofile.open("./cpp_codes/output/" + filename, ios_base::out);
     ofile << setiosflags(ios::scientific);
     if (ofile.is_open())
     {
@@ -53,14 +53,14 @@ void write_to_file_data(string filename, vec v_data, mat M_data)
 
 void write_to_file_iterations(string filename, int n, int iterations)
 {
-    ofile.open("../data/time_iterations_" + filename, ios_base::app);
+    ofile.open("./GEN_data/time_iterations_" + filename, ios_base::app);
     ofile << setw(3) << n << setw(15) << iterations << endl;
     ofile.close();
 }
 
 void write_to_file_time(string filename, double A, double B, double C, int n)
 {
-    ofile.open("../data/" + filename, ios_base::app);
+    ofile.open("./GEN_data/" + filename, ios_base::app);
     ofile << setw(3) << n << setw(15) << A << setw(15) << B << setw(15) << C << endl;
     ofile.close();
 }
