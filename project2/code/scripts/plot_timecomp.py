@@ -1,3 +1,11 @@
+""" 
+Author: Sigurd Sandvoll Sundberg 
+
+This is spesifically designed to plot the time difference between the different solvers for 
+eigenvalue problems for the buckling beam problem.
+Can be used on any problem with runs with different gridpoints and fixed extreme values. 
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from itertools import groupby
@@ -8,7 +16,9 @@ import sys
 # plt.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
 plt.rc('text', usetex=True)
 
-path = "../data/time_Comparison_BB"
+problem = sys.argv[1]
+
+path = "./GEN_data/time_Comparison_" + problem
 
 
 def read_file(path):
@@ -105,5 +115,5 @@ plt.title("Log/Log plot of time vs gridpoints")
 plt.annotate(fr"Armadillo: m = {A_m:.2f}$\pm${A_err:.2f}", [0.75, -1])
 plt.annotate(fr"Jacobi: m = {J_m:.2f}$\pm${J_err:.2f}", [0.75, -1.33])
 plt.annotate(fr"Bisection: m = {B_m:.2f}$\pm${B_err:.2f}", [0.75, -1.66])
-plt.savefig("../BB_plot/timecomp.pdf")
+# plt.savefig("../BB_plot/timecomp.pdf")
 plt.show()

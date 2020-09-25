@@ -1,3 +1,13 @@
+"""
+Author: Sigurd Sandvoll Sundberg
+This program plots the number of iterations for the two methods 
+Jacobi and Bisection. 
+This can easily be changed to only include one of the plots,
+or adding more
+This is setup spesificly to the problem at in question of comparing the 
+two algorithms 
+"""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import os.path
@@ -6,8 +16,10 @@ import sys
 plt.rc('font', **{'family': 'sans-serif', 'sans-serif': ['Helvetica']})
 plt.rc('text', usetex=True)
 
-path1 = "../data/time_iterations_ja_BB"
-path2 = "../data/time_iterations_bi_BB"
+problem = sys.argv[1]
+
+path1 = "./GEN_data/time_iterations_ja_" + problem
+path2 = "./GEN_data/time_iterations_bi_" + problem
 
 
 def read_file(path):
@@ -69,5 +81,5 @@ plt.annotate(
 plt.annotate(fr"Bisection: m = {m2:.3f}", [1, 4.75])
 
 plt.legend(loc=4)
-plt.savefig("../BB_plot/n_iter.pdf")
-# plt.show()
+# plt.savefig("./BB_plot/n_iter.pdf")
+plt.show()
