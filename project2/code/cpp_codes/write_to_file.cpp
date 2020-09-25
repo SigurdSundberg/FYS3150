@@ -14,20 +14,41 @@ ofstream ofile;
 
 void write_to_file_data(string filename, vec v_data, mat M_data)
 {
+    double values;
     ofstream ofile;
-    ofile.open("./output/" + filename);
+    ofile.open("./output/" + filename, ios_base::out);
     ofile << setiosflags(ios::scientific);
-    int n = v_data.n_elem;
-    for (int i = 0; i < n; i++)
+    if (ofile.is_open())
     {
-        ofile << setw(15) << v_data(i);
-        for (int j = 0; j < n; j++)
+        // ofile << "File successfully open";
+        int n = v_data.n_elem;
+        for (int i = 0; i < n; i++)
         {
-            ofile << setw(15) << M_data(i, j);
+            ofile << setw(15) << v_data(i);
         }
         ofile << endl;
+        for (int i = 0; i < n; i++)
+        {
+            for (int j = 0; j < n; j++)
+            {
+                values = M_data(0, j);
+                if (values <= 0)
+                {
+                    ofile << setw(15) << M_data(i, j) * (-1);
+                }
+                else
+                {
+                    ofile << setw(15) << M_data(i, j);
+                }
+            }
+            ofile << endl;
+        }
+        ofile.close();
     }
-    ofile.close();
+    else
+    {
+        cout << "Error opening file";
+    }
 }
 
 void write_to_file_iterations(string filename, int n, int iterations)
