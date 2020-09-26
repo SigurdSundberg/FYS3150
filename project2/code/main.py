@@ -29,11 +29,24 @@ def delete_files(paths, kwargs=0):
 
 
 def create_directory(paths):
+    """Creates a directory if it doesn't exist
+
+    Args:
+        paths ([str]): either a single string or a list of strings, indicating the paths to the directory in questions 
+    """
     if not isinstance(paths, list):
         paths = [paths]
     for directory in paths:
         if not os.path.exists(directory):
             os.mkdir(directory)
+
+
+def isfloat(value):
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 
 path_cpp = "./cpp_codes/main"
@@ -118,6 +131,7 @@ if problem == "bb":
             else:
                 print(
                     f"{add:s} is not an integer. Enter [int] or press enter or n + enter to continue the program.")
+        print(f"n = {m}")
         print("We do this k times. Default for k is 20.")
         k = input("[int] ")
         if (not k.isdigit()):
@@ -208,24 +222,96 @@ if problem == "qd1e":
     # Create directories for output if not already exsisting
     create_directory([path_data, path_plot, path_data_output])
 
-    print("Enter desired tolerance: Default: 10^(-10)")
+    print("Enter desired tolerance: Default: 10^(-5)")
     tolerance = input("10^(-[int]) ")
     if (not tolerance.isdigit()):
-        tolerance = 10
+        tolerance = str(5)
+    print(f"Tolerance = 10^(-{tolerance:s})")
 
-    rho_value = input("Do you want one or multiple rho values? [double/multi]")
-    if (rho_value == "multi"):
-        rho = np.linspace(2, 12, 11)  # 11 points [2,3,4,5,6,7,8,9,10,11,12]
+    print("Do you already have a dataset you want to evaluate? Default: yes")
+    data_set = input("[y/n] ")
+    if (data_set == "n"):
+        print(r"What values for rho_max do you want? Default: [2:0.2:10]")
+        rho_max = input("[double] ")
+        if (not rho_max.isdigit()):
+            rho_max = np.linspace(2, 10, 41)
+        elif (isfloat(rho_max) or rho_max.isdigit()):
+            print("Do you want more values for rho? Default: no")
+            multi_rho = input("[y/n] ")
+            if (multi_rho == "y"):
+                rho_max = [rho_max]
+                while True:
+                    print("Do you want to add more values? Default: no")
+                    value = input("[double] ")
+                    if (value == "" or value == "n"):
+                        break
+                    if (isfloat(value) or value.isdigit()):
+                        rho_max.append(value)
+                    else:
+                        print(
+                            f"{value} is not an accepted value for rho. Please enter a float or int, if you don't want to add more values, press enter or n + enter.")
 
-    multi_n = input("Do you want to iterate for multiple values of n? [y/n] ")
-    if (multi_n == "y" or n == "multi"):
-        n = [100, 200, 300, 400]
+        # Set the rhovalues such that they can be appended to a string without causing sh faults
+        prec = 10  # precision of numbers, currently 0.x, increase if you want to use i.e. 0.00x
+        rho_names = []
+        for i in range(len(rho_max)):
+            rho_names.append(int(round(rho_max[i]*10)))
 
-    for rho_max in rho:
-        print(rho_max)
-        for i in n:
-            system(path_cpp + " " + str(i) + " 1 " +
-                   filename_data + str(rho_max) + "_" + " 0 " + str(rho_max) + " 5")
+        print(
+            "For what values of n do you want to iterate for? Default: [100, 200, 300, 400]")
+        multi_n = input("[int] ")
+        if (not multi_n.isdigit()):
+            multi_n = [100, 200, 300, 400]
+        elif (multi_n.isdigit()):
+            print("Do you want to add more values for n? Default: no")
+            value = input("[int] ")
+            multi_n = [multi_n]
+            if(value.isdigit()):
+                while True:
+                    if (not value.isdigit):
+                        break
+                    multi_n.append(value)
+                    value = input("[int]")
 
-    if delete == "y":
-        delete_files(path_data_output)
+        print(f"Running the program for n = {multi_n}")
+        print("This takes a while, so be patient.")
+        for i, rho in enumerate(rho_max):
+            print(f"Current value for rho_max = {rho}")
+            for n in multi_n:
+                # "./cpp_codes/main {n} 1 {filename_data}{rho_max} 0 {rho_max} {tolerance} 1"
+                system(path_cpp + " " + str(n) + " 1 " +
+                       filename_data + str(rho_names[i]) + " 0 " + str(rho) + " " + tolerance + " 1")
+
+    print("Finding the smallest values for rho and n, which satisfies the condition of the tolerance, if not satisfied, returns the smallest error.")
+    system("python3 ./scipts/eigenvalue_error.py " +
+           filename_data + " " + tolerance)
+
+    print("Do you want to delete the output files? Default: yes")
+    delete = input("[y/n] ")
+
+    if (delete == "y"):
+        # Asking if all files should be deleted or only spesific
+        files = []
+        print("Specify which files, if NONE, all are deleted: Default: NONE")
+        while True:
+            specific = input("[str] ")
+            if (specific == "" or specific == "NONE"):
+                break
+            files.append(specific)
+        if (not files):
+            delete_files(path_data_output)
+        else:
+            delete_files(path_data_output, files)
+    elif(delete != "n"):
+        print("You sure you want to delete the files? Default: yes")
+        delete = input("[y/n]  ")
+        if (delete != "n"):
+            delete_files(path_data_output)
+
+    print("Do you want to delete general files? Default: no")
+    print("These files are in the folder GEN_data, and are the files containing time comparison and iterations.")
+    delete = input("[y/n] ")
+    if (delete == "y"):
+        delete_files(path_GEN)
+
+    print("Thank you... Have a nice day.")

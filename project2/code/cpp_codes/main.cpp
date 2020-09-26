@@ -31,8 +31,8 @@ int main(int argc, char const *argv[])
         n = atoi(argv[1]);
         interact = atoi(argv[2]);
         filename = argv[3];
-        xmin = atoi(argv[4]);
-        xmax = atoi(argv[5]);
+        xmin = atof(argv[4]);
+        xmax = atof(argv[5]);
         tol = atoi(argv[6]);
         dataset = atoi(argv[7]);
     }
@@ -54,6 +54,18 @@ int main(int argc, char const *argv[])
     /*
         Using Armadillos eigensolver for symmetrical matricies
         Timing it for comparison
+    */
+
+    // There is apperently an issue with eig_sym and it's input for the matrix if using different rho_maxes, do not know what it is?
+    /*
+            error: eig_sym(): decomposition failed
+            terminate called after throwing an instance of 'std::runtime_error'
+            what():  eig_sym(): decomposition failed
+            Aborted (core dumped)
+            sh: 2: 4.8: not found
+            sh: 3: 7.6: not found
+            sh: 4: 4.8: not found
+            sh: 5: 7.6: not found
     */
     auto startA = chrono::high_resolution_clock::now();
     vec eigen_values_arma = eig_sym(A); // Just returns Eigen values
@@ -83,7 +95,7 @@ int main(int argc, char const *argv[])
     auto startBi = chrono::high_resolution_clock::now();
     bisect(diagonal, offdiagonal, v, tolerance, n_bi);
     auto finishBi = chrono::high_resolution_clock::now();
-    cout << "Maximum error for bisection: " << tolerance << endl;
+    // cout << "Maximum error for bisection: " << tolerance << endl;
 
     /* 
         This set of data, are not subject to cold starts
@@ -92,7 +104,7 @@ int main(int argc, char const *argv[])
     if (dataset == 1)
     {
         // Write eigenvectors and eigenvalues to file.
-        string data_filename = "data_" + filename + to_string(n);
+        string data_filename = "data_" + filename + "_" + to_string(n);
         vec A_eig = diagvec(A);
         write_to_file_data(data_filename, A_eig, R);
 
@@ -120,10 +132,10 @@ int main(int argc, char const *argv[])
         double time_Armadillo = chrono::duration_cast<chrono::nanoseconds>(finishA - startA).count() / pow(10, 9);
         double time_Jacobi = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
         double time_Bisection = chrono::duration_cast<chrono::nanoseconds>(finishBi - startBi).count() / pow(10, 9);
-        cout << " " << endl;
-        cout << setw(3) << "n " << setw(15) << "Armadillo" << setw(15) << "JacobisMethod" << endl;
-        cout << setw(3) << n << setw(15) << time_Armadillo << setw(15) << time_Jacobi << endl;
-        cout << " " << endl;
+        // cout << " " << endl;
+        // cout << setw(3) << "n " << setw(15) << "Armadillo" << setw(15) << "JacobisMethod" << endl;
+        // cout << setw(3) << n << setw(15) << time_Armadillo << setw(15) << time_Jacobi << endl;
+        // cout << " " << endl;
 
         // Uncomment this if you want to write to file
         write_to_file_time(time_filename, time_Armadillo, time_Jacobi, time_Bisection, n);

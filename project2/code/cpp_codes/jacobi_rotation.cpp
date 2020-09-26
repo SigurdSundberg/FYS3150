@@ -53,8 +53,9 @@ void initialize(int interact, mat &A, int n, double h)
     diagonal = 2. / (hh);
     non_diagonal = -1. / (hh);
     vec rho(n);
-    double wr;
-    double wrr = wr * wr;
+    // Not used
+    // double wr;
+    // double wrr = wr * wr;
     /* 
     Create the eigenvector matrix. Initialized to the orthogonal matrx
     being the identity matrix(Depricated)
@@ -107,19 +108,19 @@ void initialize(int interact, mat &A, int n, double h)
         A(n - 1, n - 1) = diagonal + rho(n - 1) * rho(n - 1);
         A(n - 1, n - 2) = non_diagonal;
     }
-    else if (interact == 2) // QD Two electrons
-    {
-        A(0, 0) = diagonal + wrr * rho(0) * rho(0) + 1. / rho(0);
-        A(0, 1) = non_diagonal;
-        for (int i = 1; i < n - 1; i++)
-        {
-            A(i, i) = diagonal + wrr * rho(i) * rho(i) + 1. / rho(i);
-            A(i, i - 1) = non_diagonal;
-            A(i, i + 1) = non_diagonal;
-        }
-        A(n - 1, n - 1) = diagonal + wrr * rho(n - 1) * rho(n - 1) + 1. / rho(n - 1);
-        A(n - 1, n - 2) = non_diagonal;
-    }
+    // else if (interact == 2) // QD Two electrons
+    // {
+    //     A(0, 0) = diagonal + wrr * rho(0) * rho(0) + 1. / rho(0);
+    //     A(0, 1) = non_diagonal;
+    //     for (int i = 1; i < n - 1; i++)
+    //     {
+    //         A(i, i) = diagonal + wrr * rho(i) * rho(i) + 1. / rho(i);
+    //         A(i, i - 1) = non_diagonal;
+    //         A(i, i + 1) = non_diagonal;
+    //     }
+    //     A(n - 1, n - 1) = diagonal + wrr * rho(n - 1) * rho(n - 1) + 1. / rho(n - 1);
+    //     A(n - 1, n - 2) = non_diagonal;
+    // }
 } // End: function initialize()
 
 /*
