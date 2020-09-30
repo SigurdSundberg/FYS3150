@@ -104,7 +104,7 @@ int main(int argc, char const *argv[])
     if (dataset == 1)
     {
         // Write eigenvectors and eigenvalues to file.
-        string data_filename = "data_" + filename + "_" + to_string(n);
+        string data_filename = "data_" + filename + to_string(n);
         vec A_eig = diagvec(A);
         write_to_file_data(data_filename, A_eig, R);
 

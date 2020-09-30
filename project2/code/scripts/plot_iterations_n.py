@@ -75,11 +75,11 @@ plt.title("Log/Log plot of iterations vs gridpoints")
 
 plt.annotate(
     fr"Maximum error Jacobi: $\pm${max_error(num_values,y):.3f}", [1, 5.5])
-plt.annotate(fr"Jacobi: m = {m:.3f}", [1, 5.25])
+plt.annotate(fr"Jacobi: gradient = {m:.3f}", [1, 5.25])
 plt.annotate(
     fr"Maximum error Bisection: $\pm${max_error(num_values2,y2):.3f}", [1, 5.0])
-plt.annotate(fr"Bisection: m = {m2:.3f}", [1, 4.75])
+plt.annotate(fr"Bisection: gradient = {m2:.3f}", [1, 4.75])
 
 plt.legend(loc=4)
-# plt.savefig("./BB_plot/n_iter.pdf")
+plt.savefig("./BB_plot/n_iter.pdf")
 plt.show()

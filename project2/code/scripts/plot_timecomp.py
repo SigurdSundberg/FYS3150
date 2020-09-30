@@ -112,8 +112,9 @@ plt.legend()
 plt.xlabel(r"$\log_{10}(n)$")
 plt.ylabel(r"$\log_{10}(t)$")  # Time
 plt.title("Log/Log plot of time vs gridpoints")
-plt.annotate(fr"Armadillo: m = {A_m:.2f}$\pm${A_err:.2f}", [0.75, -1])
-plt.annotate(fr"Jacobi: m = {J_m:.2f}$\pm${J_err:.2f}", [0.75, -1.33])
-plt.annotate(fr"Bisection: m = {B_m:.2f}$\pm${B_err:.2f}", [0.75, -1.66])
-# plt.savefig("../BB_plot/timecomp.pdf")
+plt.annotate(fr"Armadillo: gradient = {A_m:.2f}$\pm${A_err:.2f}", [0.75, -1])
+plt.annotate(fr"Jacobi: gradient = {J_m:.2f}$\pm${J_err:.2f}", [0.75, -1.33])
+plt.annotate(
+    fr"Bisection: gradient = {B_m:.2f}$\pm${B_err:.2f}", [0.75, -1.66])
+plt.savefig("./BB_plot/timecomp.pdf")
 plt.show()

@@ -15,9 +15,10 @@ from itertools import groupby
 
 problem = sys.argv[1]
 tol = int(sys.argv[2])
-problem = "QD_oneElectron"
+# problem = "QD_oneElectron"
 path = "./cpp_codes/output/"
 problem = "data_" + problem
+path_general = "./GEN_data/"
 
 
 def get_directory(path, problem):
@@ -73,4 +74,8 @@ for eigenvalue in analytical_eigenvalues:
     value = eigen[index]
     counter += 1
 
-    pairs.append((float(rho), int(n), value))
+    pairs.append((float(rho)/10, int(n), value, directory[index]))
+# pairs = [(rho, n, eigenvalue), (rho, n, eigenvalue)...]
+with open(path_general + "eigenvalues_rho_n", 'w') as f:
+    for elements in pairs:
+        f.write(str(elements) + "\n")

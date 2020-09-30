@@ -19,7 +19,7 @@ void jacobi(mat &A, mat &R, int n, double tol, int &max_iterations)
 {
     int p = 0, q = 0, iterations = 0;
     double max_element = fabs(A(n - 1, n - 2));
-    while (max_element > tol && iterations < max_iterations)
+    while (max_element * max_element > tol && iterations < max_iterations)
     {
         find_max_element(A, n, max_element, p, q);
         rotate_matrix(A, R, n, p, q);

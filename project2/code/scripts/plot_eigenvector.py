@@ -67,9 +67,9 @@ for j in range(largest_eigenvalue):
     # relation = 10/9
     plt.plot(x, (vector*relation*0.9), colors[j] + "-.",
              label=fr"Numerical: $\lambda_{j+1:d}$")
-plt.title(r"Three first eigenvectors for corresponding $\lambda_{i}$")
+plt.title(r"Three first eigenfunctions for corresponding $\lambda_{i}$")
 plt.xlabel(r"$\rho$")
 plt.ylabel(r"$u(\rho)$")
 plt.legend()
-# plt.savefig("./BB_plot/eigenvec.pdf")
+plt.savefig("./BB_plot/eigenvec.pdf")
 plt.show()
