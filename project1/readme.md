@@ -1,5 +1,5 @@
 # Project 1: Solving the one dimensional Poisson equation
-In this folder there are 2 subfolders [code]{https://github.com/SigurdSundberg/FYS3150/tree/master/project1/code} and [report]{https://github.com/SigurdSundberg/FYS3150/tree/master/project1/report} which contains what is self explanatory.
+In this folder there are 2 subfolders [code](https://github.com/SigurdSundberg/FYS3150/tree/master/project1/code) and [report](https://github.com/SigurdSundberg/FYS3150/tree/master/project1/report) which contains what is self explanatory.
 ## Code
 All the code was run on the following specs:
 
