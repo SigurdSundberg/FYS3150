@@ -74,7 +74,7 @@ aps,
 \date{\today}
 
 \begin{abstract}%[0]
-
+In this project we study eigenvalue and eigenvector problems numerically using Jacobi's method and Bisection method\cite{barth1967calculation}. We study two different physical cases: The buckling beam and quantum dots with one electron. The system are quite different, but as eigenvalue problems their equations are almost identical. We discretized the infinite dimensional problem, to a finite problem which we could solve with linear algebra. We used Jacobi's method to find the eigenvalue and eigenvectors for both the buckling beam and the quantum dots problem, and found that the eigenvectors and eigenvalue where could be approximated with a low number of integration points. Jacobi's method is not the best method for tridiagonal Toeplitz matrix as it needs $O(n^2)$ iterations and has a time complexity of $O(n^{\sim 4})$. In comparison to that of the bisection method, which has a run time of $O(n^2)$, out performing Jacobi's method by a factor of approximately $n^2$. When studying quantum dots we compare the analytical eigenvalues to those we found numerically for value of $\rho_{max} = \infty$. We checked different values to find what gives the best trade off between computational time and accuracy, and found that for the first eigenvalue that $\rho = 3.8$ gives an answer to at least 4 leading digits. 
 \end{abstract}
 
 \maketitle 
