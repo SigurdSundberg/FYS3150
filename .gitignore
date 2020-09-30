@@ -8,6 +8,7 @@
 Makefile
 /project1/code/output/*
 /project1/code/Trash/*
+/project1/report/*
 /pdf
 /catch
 project0
@@ -16,8 +17,7 @@ test.txt
 
 
 # Projects added to ignore after handed in
-/project1
-
+/project1/*
 #Python files not to be included
 run.py
 test.py
@@ -36,7 +36,6 @@ test.py
 
 # Accompaning latex files
 report.txt
-report.pdf
 preamble.tex
 table.txt
 report.out

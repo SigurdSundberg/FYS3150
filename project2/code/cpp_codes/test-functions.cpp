@@ -3,6 +3,10 @@
 
 using namespace arma;
 
+/*
+    Checks wether the eigenvalues from the Toeplits matrix is set up correctly and 
+    is the same as the analytical solutions 
+*/
 TEST_CASE("Testing analytical eigenvalues symmetrical toeplitz matrix, [base]")
 {
     // Setup of initial variables
@@ -31,6 +35,10 @@ TEST_CASE("Testing analytical eigenvalues symmetrical toeplitz matrix, [base]")
     REQUIRE(eigen_value_num(2) == Approx(exact(2)).epsilon(0.00000001));
 }
 
+/*
+    Finds the largest off diagonal element, of a matrix of dimensionality n.
+    Matrix has to be symmetric, and tests wether the implementaiton is correct
+*/
 TEST_CASE("Finding max element, [base]")
 {
     int n = 3;
@@ -59,6 +67,10 @@ TEST_CASE("Testing eigenvalues, [base]")
 {
   
 }
+*/
+
+/*
+    Testing wether orthogonality is perserved after jacobi rotation.
 */
 TEST_CASE("Testing eigenvector orthogonality, [base]")
 {

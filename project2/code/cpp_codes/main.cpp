@@ -55,18 +55,6 @@ int main(int argc, char const *argv[])
         Using Armadillos eigensolver for symmetrical matricies
         Timing it for comparison
     */
-
-    // There is apperently an issue with eig_sym and it's input for the matrix if using different rho_maxes, do not know what it is?
-    /*
-            error: eig_sym(): decomposition failed
-            terminate called after throwing an instance of 'std::runtime_error'
-            what():  eig_sym(): decomposition failed
-            Aborted (core dumped)
-            sh: 2: 4.8: not found
-            sh: 3: 7.6: not found
-            sh: 4: 4.8: not found
-            sh: 5: 7.6: not found
-    */
     auto startA = chrono::high_resolution_clock::now();
     vec eigen_values_arma = eig_sym(A); // Just returns Eigen values
     auto finishA = chrono::high_resolution_clock::now();

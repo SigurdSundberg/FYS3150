@@ -128,6 +128,10 @@ void bisect(vec &diagonal, vec &offdiagonal, vec &v, double &relative_tolerance,
     n = iterator;                 // Number of bisections
 }
 
+/*
+    Initializes the problem, for a set values, for the diagonal and non diagonal elements 
+    This is similar to the Jacobi method init, but with vectors instead of matrices
+*/
 void initialize_bi(int interact, vec &d, vec &nd, int n, double h)
 {
     double hh = h * h;
@@ -156,6 +160,10 @@ void initialize_bi(int interact, vec &d, vec &nd, int n, double h)
     }
 } // End: function initialize()
 
+/*
+    Finds the number of roots upto a value of x.
+    implemented as per the report. 
+*/
 void m_sturm_sequence(vec &d, vec &b, double x, int n, int &a)
 {
     /*

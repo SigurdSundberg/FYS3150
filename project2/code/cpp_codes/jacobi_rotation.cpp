@@ -15,6 +15,12 @@ Spesification of functions
 using namespace std;
 using namespace arma;
 
+/*
+    Implements the jacobi method, for simpler calls.
+
+    Returns the number of iterations as the variable that was given by 
+    max_iterations to see how many iterations were needed
+*/
 void jacobi(mat &A, mat &R, int n, double tol, int &max_iterations)
 {
     int p = 0, q = 0, iterations = 0;
@@ -150,6 +156,11 @@ void find_max_element(mat A, int n, double &max_element, int &p, int &q)
     }
 } // End: function max_Offdiagonal_element
 
+/*
+    the function()
+        rotate_matrix
+    performs the similarity transfomation on a matrix A and eigenvector matrix R
+*/
 void rotate_matrix(mat &A, mat &R, int n, int k, int l)
 {
     double s, c;
