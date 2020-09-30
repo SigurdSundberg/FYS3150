@@ -33,6 +33,7 @@ test.py
 *.blg
 *.dvi
 *.bbl
+*.sty
 
 # Accompaning latex files
 report.txt
