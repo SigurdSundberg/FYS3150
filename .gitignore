@@ -6,9 +6,6 @@
 # Folders and misc files
 .vscode
 Makefile
-/project1/code/output/*
-/project1/code/Trash/*
-/project1/report/*
 /pdf
 /catch
 project0
@@ -18,6 +15,8 @@ test.txt
 
 # Projects added to ignore after handed in
 /project1/*
+/project2/*
+
 #Python files not to be included
 run.py
 test.py
