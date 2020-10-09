@@ -44,4 +44,5 @@ report.out
 *.x
 *.o
 test.cpp
+/cpp_examples/*
 
