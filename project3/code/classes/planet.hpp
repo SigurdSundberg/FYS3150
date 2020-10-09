@@ -1,21 +1,21 @@
 #ifndef PLANET_HPP
 #define PLANET_HPP
-#define _USE_MATH_DEFINES
-#include <cmath>
-#include <vector>
+
+#include "../vec3.h"
 
 class planet
 {
-private:
-    double mass;
-    double energy_potential;
-    double energy_kinetic;
-
 public:
-    planet();
-    planet(double M, std::vector<double> pos, std::vector<double> vel);
-    planet(double M, double x, double y, double z, double vx, double vy, double vz);
+    vec3 position;
+    vec3 velocity;
+    vec3 force; // Forces acting the x,y,z directions
+    double mass;
+
+    planet(double mass, vec3 position, vec3 velocity);
+    planet(double mass, double x, double y, double z, double vx, double vy, double vz);
     ~planet();
+
+    void resetForce();
 };
 
 #endif
