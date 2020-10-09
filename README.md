@@ -9,3 +9,6 @@ This project is on numerical precision and runtime. Used as a base to measure th
 
 ### Project 2
 This project is on numerical methods for finding eigenvalues and eigenvectors. The methods implemented here are Bisection method and the Jacobi method. We compare run times and looking at number of iterations between the methods. And applying the methods to a classical mechanics problem and quantum mechanics problem. 
+
+### Project 3 
+This project is on modelling the solar system. This is done through the use of solving ordinary differential equations by using the Euler and Velocity Verlet methods for finding solutions to ODE. In addition this project involves Object Orientation(OO) and introduces the concept of ```write once, run many times´´´. 
