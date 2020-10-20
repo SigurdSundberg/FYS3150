@@ -5,6 +5,6 @@
 
 #include "../vec3.h"
 
-void calculate_force(vec3, vec3, double, vec3 &);
+vec3 force(double, vec3 &, vec3 &);
 
 #endif

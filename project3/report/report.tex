@@ -21,7 +21,6 @@ aps,
 %prstper,
 %floatfix,
 ]{revtex4-1}
-\usepackage{preamble}
 \usepackage[]{graphicx}
 \usepackage[]{hyperref}
 \usepackage[]{physics}
@@ -30,6 +29,7 @@ aps,
 \usepackage{color}
 \usepackage[]{subcaption}
 \usepackage[ruled,vlined]{algorithm2e}
+\usepackage{amssymb, amsmath}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -67,7 +67,7 @@ aps,
 	\normalsize{Building a model for the solar system} \\
 	\hrulefill\small{ FYS3150: Computational Physics }\hrulefill}
 
-\author{Sigurd Sandvoll Sundberg}\homepage{https://github.com/SigurdSundberg/FYS3150/tree/master/project3}
+\author{Sigurd Sandvoll Sundberg}\homepage{https://github.com/SigurdSundberg/FYS3150}
 
 \affiliation{%
 	Department of Geosciences, University of Oslo\\
@@ -83,8 +83,134 @@ aps,
 
 \section{Introduction} %[0]
 
+\section{Theory}
+\subsection{Differential equations}
+The force acting upon objects in our Solar System are governed by Newton's gravitational law, which states that the force acting between two objects is 
+\begin{equation}
+	\vec{F}_{ij} =  -G \frac{m_im_j}{\abs{r_{ij}}^2}\hat{r}_{ij}
+\end{equation}
+where 
+\begin{enumerate}
+	\item	$F_{ij}$ is the force applied on object i by object j.
+	\item G is the gravitational constant.
+	\item	$m_i$ and $m_j$ are respectively the masses of objects i and j. 
+	\item $\abs{r_{ij}} = \abs{\vec{r_i} - \vec{r_j}}$ is the distance between j and i.
+	\item	$\hat{r}_{ij} = \frac{\vec{r_i}-\vec{r_j}}{\abs{\vec{r_i} - \vec{r_j}}}$ is the unit vector from object j to i.
+\end{enumerate}
+We let the force act on the center of mass of the objects, and consider the objects to be point particles. 
+
+The total force acting on an object in the Solar System is given by 
+\begin{equation}
+	\vec{F}_i = \sum_{i\neq j} \vec{F}_{ij}
+\end{equation}
+
+From Newton's second law of motion we have,
+\begin{equation}
+ \vec{F} = m\vec{a}.
+\end{equation}
+Using $\vec{F} = \vec{F}_{ij}$ we can derive that 
+\begin{equation}
+	\begin{split}
+		\vec{a} = \frac{\vec{F}}{m}\\
+		\frac{\partial^2 }{\partial t^2}\vec{r} = \frac{\vec{F}}{m}
+	\end{split}
+\end{equation}
+As the $\vec{F}$ is dependent on the position $\vec{r}$, we are dealing with coupled partial differential equations. We can rewrite this as a set of coupled ordinary differential equations(ODE), 
+\begin{equation}\label{eq:diff}
+	\begin{split}
+		\frac{\partial}{\partial t} \vec{v} = \vec{a}\\
+		\frac{\partial}{\partial t} \vec{r} = \vec{v}
+	\end{split}
+\end{equation}
+Knowing the position of all the objects in the Solar System we can find the force acting upon each object, and from this find their respective position over time, by solving this set of differential equations. 
+
+\section{Algorithms}
+In order to find the position for all bodies as time evolves we need to solve a set of couple differential equations \ref{eq:diff} for each of the bodies at each time step. In our case for the solar system this set of couple differential equations is only possible to solve numerically. 
+
+To start off we want to scale our equations from SI units to more appropriate units for the solar system, these are Astronomical Unit(AU) for length, years(yr) for time and sun masses for mass. By looking at the Earth-Sun system, and assuming circular motion\cite{1994A&A...282..663S}, we have
+\begin{equation}
+	F_{\text{Earth}} = G\frac{M_{\text{Earth}}M_{\odot}}{r^2} = M_{\text{Earth}}\frac{v^2}{r}
+\end{equation}
+This gives us 
+\begin{equation}
+	GM_{\odot} = v^2 r = (2\pi \text{AU}/\text{yr})^2 1\text{AU} = 4\pi^2\text{AU}^3/\text{yr}^2.
+\end{equation}
+Using Sun masses\footnote{$M_{\odot} = 1$, and all other masses scaled as $M_i / M_{\odot}$.}, we then have 
+\begin{equation}
+	 G = 4\pi^2\text{AU}^3/\text{yr}^2.
+\end{equation}
+
+Our discretization of our continuous differential equations are done as follows
+\begin{equation}
+	\begin{split}
+		&x(t) \rightarrow x(t_i) \rightarrow x_i \in [x_0, x_1, \dots, x_i, \dots, x_{n-1}]\\
+		&v(t) \rightarrow v(t_i) \rightarrow v_i \in [v_0, v_1, \dots, v_i, \dots, v_{n-1}]
+	\end{split}
+\end{equation}
+and so on, where the initial values are known. If we know the initial time $t_0$ and the final time $t_{\text{max}}$, and the number of integration points $n$, we get the following expressions for $t_i$ 
+\begin{equation}
+	t_i = t_0 + hi,
+\end{equation}
+where $i = 0,1,2,\dots,n-1$ and 
+\begin{equation}
+	h = \frac{t_{\text{max}} - t_0}{n-1}.
+\end{equation}
+
+To solve the coupled differential equations numerically we will be using two algorithms; forward Euler and velocity-Verlet method. Both methods are based on Taylor expansion 
+\begin{equation}
+	f(x\pm h) = f(x) \pm h\frac{d}{dx}f(x) + \frac{h^2}{2!}\frac{d^2}{dx^2}f(x) + \dots 
+\end{equation}
+\subsection{Forward Euler}
+The forward Euler algorithm is a simple numerical method to solve coupled ODE. Whilst simple it performs poorly when it comes to Hamiltonian systems, as it is not energy conserving. It uses the two first terms of the Taylor expansion to approximate the next step,
+\begin{align}
+	x_{i+1} &= x_i + hv_i + O(h^2)\\
+	v_{i+1} &= v_i + ha_i + O(h^2)
+\end{align}
+where $x,v,a$ are vectors of up to dimension 3, and where $i$ denotes the time step. $h$ is the length of the time step. An algorithm for performing the forward Euler for the entire time period studied, i.e. doing foward Euler for all time steps reads as follows
+\begin{algorithm}[H]\label{algo:FE}
+	\SetAlgoLined
+	\caption{Forward Euler}
+	initialize $x_0$ and $v_0$\;
+	\For{i = 0,1,2,\dots,N-1}{
+	compute $a_i$ \\
+	$x_{i+1} = x_i + hv_i$ \\
+	$v_{i+1} = v_i + ha_i$	
+	}
+\end{algorithm}
+
+This calculation has $4N$ FLOPs, without considering the FLOPs for calculating the acceleration, but trades efficiency for accuracy as the local error goes as $O(h^2)$ for both x and v. 
+\subsection{Velocity-Verlet}
+For the majority of this project we will be using the velocity Verlet algorithm as it is known to preserve energy, making it better at working with Hamiltonian systems. It uses the three first terms of the Taylor expansion. The next time step is then given by 
+\begin{align}
+		x_{i+1} &= x_i + hv_i + \frac{h^2}{2} a_i + O(h^3)\\
+		v_{i+1} &= v_i + \frac{h^2}{2}\left(a_{i+1} + a_i\right) + O(h^3)
+\end{align}
+\todo{Hvis tid legg til Appendix med utledningen av dette}
+
+We see that we would need both $a_i$ and $a_{i+1}$ to find $v_{i+1}$, where $a_{i+1}$ is defined by the position $x_{i+1}$. That leads to the following algorithm where we first find $a_i$, then only after finding $x_{i+1}$, we find $a_{i+1}$. 
+\begin{algorithm}[H]\label{algo:VV}
+	\SetAlgoLined
+	\caption{Velocity Verlet}
+	initialize $x_0$ and $v_0$\;
+	\For{i = 0,1,2,\dots,N-1}{
+		compute $a_i$ \\
+		$x_{i+1} = x_i + hv_i + \frac{h^2}{2}a_i$  \\
+		compute $a_{i+1}$		\\
+		$v_{i+1} = v_i + \frac{h^2}{2}(a_{i+1} + a_i)$	
+	}
+\end{algorithm}
+
+This calculation has $9N$ FLOPs, without counting the number of FLOPs included in calculating the acceleration, which we have to do twice for each N. This is a greater amount of FLOPs comared to forward Euler, but at the trade off more precise conservation of energy. 
+
+\section{Method}
+\subsection{Object Orientation and memory}
+In larger projects having to copy-paste code when adding more objects is both tedious and prone to error. So we want to design our code base such that we only have to write the code one time, and can keep adding objects to our system without any trouble. This is here achieved by having a \textbf{class} for our planets(objects) and a \textbf{class} for our system. 
+Including we have a solver \textbf{class} which encompasses both the implemented forward Euler method and the velocity-Verlet method, and can be expanded upon if more differential equation solvers are needed. This makes our code base versatile and adaptable to many different problems and we can \textit{write once, run many times}. 
+
+One essential problem which can be encountered however is memory limitation when vast amount of objects are added to the system, if we where to store the position of all objects at all time steps as double precision numbers, we would have for a three dimensional problem we would need to store $3N_{\text{objects}}n_{\text{time steps}}$ double precision numbers. A sample situation with $n = 10^7$, we would need roughly 2 giga bytes of memory to store the position of the planets in our Solar System. If we wanted to store more information such as the force acting on each planet at each time step, we would need roughly 4 giga bytes of memory. Such that storing values for each time step at all times becomes extremely inefficient and memory intensive. To get around that we overwrite the current set of data for each calculation, only storing the information that is needed to compute the next time step. To store the data we write the data to files at intervals, as not all data points are needed to study the cases of interest in this article. 
+
+ 
 \section{Conclusion} %[0]
-\appendix
 
 %%% footnote
 % rainforest\footnote{Writing out a general case will also take up more paper

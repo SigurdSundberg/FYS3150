@@ -5,8 +5,6 @@
 
 #include "vv.hpp"
 #include "eul.hpp"
-#include "file_man.hpp"
-#include "force.hpp"
 #include "../vec3.h"
 
 using namespace std;
@@ -38,11 +36,10 @@ int main(int argc, char const *argv[])
     {
         for (int i = 0; i < number_of_objects; i++)
         {
+            force_E.zeros();
+            force_S.zeros();
 
-            calculate_force(pos_S, vel_S, mass_S, force_S);
-            calculate_force(pos_E, vel_E, mass_E, force_E);
-
-            /*
+                        /*
             Grab elements from System and turn them into vec3 
             Calculate the force between objects 
             */

@@ -4,12 +4,15 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <iomanip>
+#include <cmath>
 
 #include "planet.hpp"
 
 class solarsystem
 {
 private:
+    double G = 4 * M_PI * M_PI;
     std::ofstream m_file;
     double m_kineticEnergy;
     double m_potentialEnergy;
@@ -19,13 +22,17 @@ public:
     solarsystem();
     planet &createPlanet(double mass, vec3 position, vec3 velocity);
     ~solarsystem();
-    void calculateForceAndEnergy();
-    int numberOfPlanets() const;
+    void calculateAccel();
+    void calculateAccel(double);
+    std::vector<planet> &planets();
 
-    double totalEnergy() const;
-    double potentialEnergy() const;
-    double kineticEnergy() const;
-    void writeToFile(std::string filename);
+    double totalEnergy();
+    int numberOfPlanets() const;
+    double getPotential();
+    double getKinetic();
+    void initializeDataFile(std::string filename);
+    void writeToFilePos(std::string filename);
+    void writeToFileEnergy(std::string filename);
 };
 
 #endif

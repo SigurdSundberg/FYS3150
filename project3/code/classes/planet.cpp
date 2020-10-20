@@ -14,12 +14,17 @@ planet::planet(double m, double x, double y, double z, double vx, double vy, dou
     velocity = vec3(vx, vy, vz);
 }
 
-planet::~planet()
+double planet::getKinetic()
 {
-    delete[] & position, &velocity;
+    return 0.5 * mass * velocity.lengthSquared();
 }
 
-void planet::resetForce()
+void planet::resetAcceleration()
 {
-    force.zeros();
+    accel.zeros();
+}
+
+vec3 planet::getForce()
+{
+    return accel * mass;
 }
