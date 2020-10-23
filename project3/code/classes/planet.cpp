@@ -19,6 +19,11 @@ double planet::getKinetic()
     return 0.5 * mass * velocity.lengthSquared();
 }
 
+vec3 planet::getAngularMomentum()
+{
+    return position.cross(velocity) * mass;
+}
+
 void planet::resetAcceleration()
 {
     accel.zeros();

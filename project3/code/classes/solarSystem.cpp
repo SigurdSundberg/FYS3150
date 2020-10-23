@@ -65,6 +65,31 @@ void solarsystem::calculateAccel(double alpha)
     }
 }
 
+// void solarsystem::calculateAccel(string s)
+// {
+//     double l;
+//     for (planet &current : m_planets)
+//     {
+//         current.resetAcceleration();
+//     }
+
+//     for (planet &current : m_planets)
+//     {
+//         l = abs(current.position.cross(current.velocity));
+//         for (planet &other : m_planets)
+//         {
+//             vec3 deltaR = current.position - other.position;
+//             double r = deltaR.length();
+//             if (r != 0)
+//             {
+//                 double coeff = -G * other.mass / ((double)r * r * r) * (1 + (3 * l * l) / (r * r * c * c));
+//                 current.accel += coeff * deltaR;
+//                 // cout << r << endl;
+//             }
+//         }
+//     }
+// }
+
 std::vector<planet> &solarsystem::planets()
 {
     return m_planets;
@@ -121,6 +146,16 @@ double solarsystem::getPotential() // Figure out how to do this bad boy
     return m_potentialEnergy;
 }
 
+double solarsystem::getAngMom()
+{
+    m_angularMomentum = 0;
+    for (planet &current : m_planets)
+    {
+        m_angularMomentum += current.getAngularMomentum().length();
+    }
+    return m_angularMomentum;
+}
+
 void solarsystem::initializeDataFile(string filename)
 {
     if (m_file.good())
@@ -134,6 +169,7 @@ void solarsystem::initializeDataFile(string filename)
     }
     m_file << numberOfPlanets() << endl;
     m_file << "id x y z" << endl;
+    m_file.close();
 }
 
 void solarsystem::writeToFilePos(string filename)
