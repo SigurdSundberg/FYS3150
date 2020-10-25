@@ -152,3 +152,99 @@ int main(int argc, char const *argv[])
     return 0;
 }
 */
+
+/*
+// Escape velocity
+int main(int argc, char const *argv[])
+{
+    double t = 0.0, t_end = 5000, dt = 1e-7; // 1e-7//1e-7 10^{-7}
+    std::string filename, filename_;
+    filename = "./Data/";
+
+    int i = 0;
+    // std::cout << "Total energy before " << solarsystem.totalEnergy() << std::endl;
+    // std::cout << solarsystem.getKinetic() << " " << solarsystem.getPotential() << std::endl;
+    double v = 8.8849;
+    double dv = 0.0001; // 1e-7
+    int k = 1;
+    while (true)
+    {
+        t = 0.0;
+        solarsystem solarsystem;
+        ODEsolver integrator(dt);
+        // filename_ = filename + "VEscape" + std::to_string(k) + ".xyz";
+        // solarsystem.initializeDataFile(filename_);
+        k += 1;
+        std::cout << v << std::endl;
+        solarsystem.createPlanet(1.0, vec3(0, 0, 0), vec3(0, 0, 0));
+        solarsystem.createPlanet(3e-6, vec3(1, 0, 0), vec3(0, v, 0));
+        while (t < t_end)
+        {
+            integrator.oneStepVelocityVerlet(solarsystem);
+            t += dt;
+            i += 1;
+            planet &earth = solarsystem.planets()[1];
+            if (earth.position.length() > 100)
+            {
+                std::cout << "Final v: " << v << std::endl;
+                std::cout << earth.position.length() << std::endl;
+                std::terminate();
+            }
+            if (i % 1000 == 0)
+            {
+                // std::cout << earth.position.length() << std::endl;
+                // solarsystem.writeToFilePos(filename_); // Write only the final position of each time step.
+            }
+        }
+        planet &earth = solarsystem.planets()[1];
+        std::cout << "r" << earth.position.length() << std::endl;
+        v += dv;
+    }
+    // std::cout << "Total energy after " << solarsystem.totalEnergy() << std::endl;
+    // std::cout << solarsystem.getKinetic() << " " << solarsystem.getPotential() << std::endl;
+
+    return 0;
+}
+
+*/
+
+/*
+
+void readFile(double *x, double *y, double *z, double *vx, double *vy, double *vz, double *mass, int Nparticles, std::string filename)
+{
+    // double *x, *y, *z, *vx, *vy, *vz; //To store initial conditions for each particle.
+    // double *mass; //Store mass of particles.
+    // int Nparticles = 3;
+    // x = new double[Nparticles];
+    // y = new double[Nparticles];
+    // z = new double[Nparticles];
+    // vx = new double[Nparticles];
+    // vy = new double[Nparticles];
+    // vz = new double[Nparticles];
+    // mass = new double[Nparticles];
+    const char *filename_pos_and_vel;
+    if (filename == "bari")
+    {
+        filename_pos_and_vel = "./Input/initialBary.txt";
+    }
+    else
+    {
+        filename_pos_and_vel = "./Input/initial.txt"; //Each line of file gives initial condition for a particle on the form: x y z vx vy vz
+    }
+    const char *filename_mass = "./Input/masses.txt"; //Each line of the file contains a mass for a given particle.
+
+    //Open files
+    FILE *fp_init = fopen(filename_pos_and_vel, "r"); //Open file to read, specified by "r".
+    FILE *fp_mass = fopen(filename_mass, "r");        //Open file to read.
+
+    //Loop over each particle and extract its mass and initial conditions:
+    for (int i = 0; i < Nparticles; i++)
+    {
+        int _ = fscanf(fp_init, "%lf %lf %lf %lf %lf %lf", &x[i], &y[i], &z[i], &vx[i], &vy[i], &vz[i]); // One %lf (lf=long float or double) for each floating point number on each line of the file.
+        _ = fscanf(fp_mass, "%lf", &mass[i]);                                                            //Extract mass for particle i.
+    }
+
+    fclose(fp_init); //Close file with initial conditions
+    fclose(fp_mass); //Close file with masses.
+}
+*/
