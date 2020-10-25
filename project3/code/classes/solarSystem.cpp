@@ -4,8 +4,10 @@
 
 using namespace std;
 
-solarsystem::solarsystem() : m_kineticEnergy(0),
-                             m_potentialEnergy(0)
+solarsystem::solarsystem(double alpha, double type) : m_kineticEnergy(0),
+                                                      m_potentialEnergy(0),
+                                                      m_alpha(alpha),
+                                                      m_type(type)
 {
 }
 
@@ -19,47 +21,61 @@ solarsystem::~solarsystem()
 {
 }
 
+// void solarsystem::calculateAccel()
+// {
+//     for (planet &current : m_planets)
+//     {
+//         current.resetAcceleration();
+//     }
+
+//     for (planet &current : m_planets)
+//     {
+//         for (planet &other : m_planets)
+//         {
+//             vec3 deltaR = current.position - other.position;
+//             double r = deltaR.length();
+//             if (r != 0)
+//             {
+//                 double coeff = -G * other.mass / ((double)r * r * r);
+//                 current.accel += coeff * deltaR;
+//             }
+//         }
+//     }
+// }
+
 void solarsystem::calculateAccel()
 {
     for (planet &current : m_planets)
     {
         current.resetAcceleration();
     }
-
-    for (planet &current : m_planets)
+    if (m_type != 0)
     {
-        for (planet &other : m_planets)
+        /*  
+            As angular momentum is conserved as a value, we find it at the first time step and keep that value for the 
+            rest of the calculations.
+        */
+        for (planet &current : m_planets)
         {
-            vec3 deltaR = current.position - other.position;
-            double r = deltaR.length();
-            if (r != 0)
-            {
-                double coeff = -G * other.mass / ((double)r * r * r);
-                current.accel += coeff * deltaR;
-                // cout << r << endl;
-            }
+            vec3 pos = current.position;
+            vec3 vel = current.velocity;
+            double tmp = pos.cross(vel).length();
+            current.ll = tmp * tmp;
         }
-    }
-}
-
-void solarsystem::calculateAccel(double alpha)
-{
-    for (planet &current : m_planets)
-    {
-        current.resetAcceleration();
+        m_type = 0;
     }
 
     for (planet &current : m_planets)
     {
+        m_l = current.ll;
         for (planet &other : m_planets)
         {
             vec3 deltaR = current.position - other.position;
             double r = deltaR.length();
             if (r != 0)
             {
-                double coeff = -G * other.mass / ((double)pow(r, alpha) * r);
+                double coeff = (-G * other.mass / ((double)pow(r, m_alpha) * r)) * (1 + (3 * m_l) / ((double)r * r * cc));
                 current.accel += coeff * deltaR;
-                // cout << deltaR << endl;
             }
         }
     }
