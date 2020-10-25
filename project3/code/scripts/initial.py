@@ -8,7 +8,7 @@ vz = []
 
 # Velocity is in Au /d not Au/yr
 DtY = (365.24)
-with open("init.txt", 'r') as f:
+with open("initBary.txt", 'r') as f:
     f.readline()
     while True:
         R = f.readline().strip("\n").rstrip().split(" ")
@@ -22,7 +22,7 @@ with open("init.txt", 'r') as f:
         vy.append(str(float(V[3])*DtY))
         vz.append(str(float(V[5])*DtY))
 
-with open("../classes/Input/initial.txt", 'w') as o:
+with open("../classes/Input/initialBary.txt", 'w') as o:
     for i in range(len(x)):
         o.write(
             f"{x[i]:25s} {y[i]:25s} {z[i]:25s} {vx[i]:25s} {vy[i]:25s} {vz[i]:25s} \n")

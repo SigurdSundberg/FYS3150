@@ -9,38 +9,53 @@ plt.rcParams.update({
     "font.sans-serif": ["Helvetica"],
     "font.family": "DejaVu Sans"})
 
-# filename = "../classes/Data/V2.xyz"
-# filename = "../classes/Data/V3.xyz"
-filename = "../classes/Data/V10.xyz"
 
-with open(filename, 'r') as f:
-    N = int(f.readline())
-    string = f.readline()
-    X = []
-    Y = []
-    Z = []
-    for _ in range(N):
-        X.append([])
-        Y.append([])
-        Z.append([])
-    for line in f:
-        line = line.split()
-        Id = int(line[0])
-        X[Id - 1].append(float(line[1]))
-        Y[Id - 1].append(float(line[2]))
-        Z[Id - 1].append(float(line[3]))
+# Absolute path
+# filename = ["../classes/Data/Vdt1.xyz", "../classes/Data/V3.xyz"]
+# filename = ["../classes/Data/V2.xyz"]
+# planets = ["Sun", "Earth"]
+# # filename = ["../classes/Data/V3.xyz"]
+# planets = ["Sun", "Earth", "Jupiter"]
+filename = ["../classes/Data/V10.xyz"]
+# savefigPath = "../classes/figure/"
 
-planets = ["Sun", "Earth", "Jupiter", "Mars", "Venus",
-           "Saturn", "Mercury", "Uranus", "Neptun", "Pluto"]
-for i in range(N):
-    ax.plot(X[i][:], Y[i][:], Z[i][:], label=f"{planets[i]:s}")
-ax.set_xlabel("x-position [AU]")
-ax.set_ylabel("y-position [AU]")
-ax.set_zlabel("z-position [AU]")
-plt.legend()
+# Relative paths
+# filename = "./classes/Data/V2.xyz"
+# filename = "./classes/Data/V3.xyz"
+# filename = "./classes/Data/V10.xyz"
+# savefigPath = "./classes/figure/"
+for e in filename:
+    with open(e, 'r') as f:
+        N = int(f.readline())
+        string = f.readline()
+        X = []
+        Y = []
+        Z = []
+        for _ in range(N):
+            X.append([])
+            Y.append([])
+            Z.append([])
+        for line in f:
+            line = line.split()
+            Id = int(line[0])
+            X[Id - 1].append(float(line[1]))
+            Y[Id - 1].append(float(line[2]))
+            Z[Id - 1].append(float(line[3]))
+    # n = len(X[0][:])  # int(n/3.8) for jupiter max mass
+    planets = ["Sun", "Mercury", "Venus", "Earth", "Mars",
+               "Jupiter", "Saturn",  "Uranus", "Neptun", "Pluto"]
+    for i in range(N):
+        ax.plot(X[i][:], Y[i][:],
+                Z[i][:], label=f"{planets[i]:s}")
+    ax.set_xlabel("x-position [AU]")
+    ax.set_ylabel("y-position [AU]")
+    ax.set_zlabel("z-position [AU]")
+    ax.set_title(
+        "Simulation over 200 years for the entire Solar system.")
+    plt.legend()
 plt.show()
 
-# Plotting inner planets
+# # Plotting inner planets
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 innerplanets = ["Sun", "Earth", "Mars", "Venus", "Mercury"]
@@ -48,15 +63,16 @@ n = len(X[0][:])
 for i in range(N):
     if (planets[i] in innerplanets):
         print(planets[i])
-        ax.plot(X[i][:int(n/100)], Y[i][:int(n/100)], Z[i]
-                [:int(n/100)], label=f"{planets[i]:s}")
+        ax.plot(X[i][:int(n/200)], Y[i][:int(n/200)], Z[i]
+                [:int(n/200)], label=f"{planets[i]:s}")
 ax.set_xlabel("x-position [AU]")
 ax.set_ylabel("y-position [AU]")
 ax.set_zlabel("z-position [AU]")
+ax.set_title("Plot over the inner planets.")
 plt.legend()
 plt.show()
 
-""" 
+"""
 # This is the dumb way of doing this, method above works way better
 import matplotlib.pyplot as plt
 import numpy as np
@@ -65,7 +81,7 @@ from mpl_toolkits.mplot3d import Axes3D
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-filename = "../classes/V3.xyz"
+filename = ["../classes/V3.xyz"]
 with open(filename, 'r') as f:
     n = int(f.readline())
     string = f.readline()

@@ -12,9 +12,9 @@ neptun = 1.03e26
 pluto = 1.31e22
 
 
-planet_list = array([sun, earth, jupiter, mars, venus,
-                     saturn, mercury, uranus, neptun, pluto])
-
+planet_list = array([sun, mercury, venus, earth, mars, jupiter,
+                     saturn,  uranus, neptun, pluto])
+"Sun mercurys venus earth mars Jupiter satrun uranus neptun pluto"
 planet_list = planet_list/sun
 with open("../classes/Input/masses.txt", 'w') as o:
     for i in range(len(planet_list)):
