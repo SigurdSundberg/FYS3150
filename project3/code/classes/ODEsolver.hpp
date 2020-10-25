@@ -11,7 +11,7 @@ private:
 public:
     ODEsolver(double h);
     void oneStepVelocityVerlet(class solarsystem &);
-    void oneStepVelocityVerlet(class solarsystem &, double);
+    // void oneStepVelocityVerlet(class solarsystem &, double);
     void oneStepForwardEuler(class solarsystem &);
 };
 #endif
