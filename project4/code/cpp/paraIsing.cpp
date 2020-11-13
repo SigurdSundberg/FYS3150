@@ -24,11 +24,10 @@ inline int periodic(int i, int dim, int pos)
     return (i + dim + pos) % (dim);
 }
 
-void initialize(int, int **, double &, double &, int);
-void MonteCarloMetropolis(int, int, double, double *);
-void read_input(int &, int &, double &, double &, double &);
+void initialize(int, int **, int);
+void getEnergyAndMagneticMoment(int, int **, double &, double &);
+void MonteCarloMetropolis(int, int, int **, double, double, double, double *, double *);
 void output(int, int, double, double *);
-void analytical_2x2_lattice(double *, double);
 
 int main(int argc, char *argv[])
 {
@@ -77,23 +76,22 @@ int main(int argc, char *argv[])
     MPI_Bcast(&tInitial, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(&tFinal, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
     MPI_Bcast(&tStep, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    /*
-    double w[17];
 
+    // Allocate memory to spinMatrix
     int **spinMatrix;
     spinMatrix = new int *[dim];
     for (int i = 0; i < dim; i++)
     {
         spinMatrix[i] = new int[dim];
     }
-    */
 
     // Start of the MonteCarlo Sampling, looping over temperatures
     double timeStart, timeFinal, timeTotal;
     timeStart = MPI_Wtime();
     for (double T = tInitial; T <= tFinal; T += tStep)
     {
-        /*
+        double E = 0., M = 0.;
+        double w[17];
         for (int dE = -8; dE <= 8; dE++)
         {
             w[dE + 8] = 0;
@@ -102,15 +100,52 @@ int main(int argc, char *argv[])
         { // The energy for the current temperature
             w[dE + 8] = exp(-dE / ((double)T));
         }
-        */
-        double expectation[6];
+
+        // Define the local expecation values
+        double localValues[6];
         for (int i = 0; i < 6; i++)
         {
-            expectation[i] = 0.;
+            localValues[i] = 0.;
         }
 
+        // Setup the spinMatrix once
+        if (T == tInitial)
+        {
+            initialize(dim, spinMatrix, initialArrangementOfLattice);
+        }
+        // Find E and M for the current configuration of the spinmatrix.
+        // DO NOT KNOW IF THIS IS TOTALLY NEEDED, OR IF I CAN REUSE
+        getEnergyAndMagneticMoment(dim, spinMatrix, E, M);
+
         // Perform the Metropolis algorithm.
-        MonteCarloMetropolis(dim, MCs, T, expectation);
+        MonteCarloMetropolis(dim, MCs, spinMatrix, T, E, M, w, localValues);
+
+        // Setup the total values for writing to file
+        double totalValues[6];
+        for (int i = 0; i < 6; i++)
+        {
+            totalValues[i] = 0.;
+        }
+        for (int i = 0; i < 6; i++)
+        {
+            MPI_Reduce(&localValues[i], &totalValues[i], 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        }
+
+        // Write the results to file
+        if (currentProcessor == 0)
+        {
+            output(dim, MCs * numberOfProcessors, T, totalValues);
+        }
+    }
+    if (currentProcessor == 0)
+    {
+        ofile.close();
+    }
+    timeFinal = MPI_Wtime();
+    timeTotal = timeFinal - timeStart;
+    if (currentProcessor == 0)
+    {
+        cout << "Time: --- " << timeTotal << " seconds --- on " << numberOfProcessors << endl;
     }
 
     // Free memory
@@ -120,16 +155,11 @@ int main(int argc, char *argv[])
     }
     delete[] spinMatrix;
 
-    if (currentProcessor == 0)
-    {
-        ofile.close();
-    }
-
     MPI_Finalize();
     return 0;
 }
 
-void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_state)
+void initialize(int dim, int **spinMatrix, int initial_state)
 { // This should be working
 
     double r;
@@ -144,7 +174,6 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
             for (int j = 0; j < dim; j++)
             {
                 spinMatrix[i][j] = 1; // initial orientation all up
-                M += (double)spinMatrix[i][j];
             }
         }
     }
@@ -164,30 +193,29 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
             {
                 r = rng(generator);
                 spinMatrix[i][j] = r <= 0.5 ? -1 : 1;
-                M += (double)spinMatrix[i][j];
             }
         }
     }
+}
+void getEnergyAndMagneticMoment(int dim, int **spinMatrix, double &E, double &M)
+{
     for (int i = 0; i < dim; i++)
     {
         for (int j = 0; j < dim; j++)
         {
+            M += (double)spinMatrix[i][j];
             E -= (double)spinMatrix[i][j] * (spinMatrix[i][periodic(j, dim, -1)] + spinMatrix[periodic(i, dim, -1)][j]);
         }
     }
 }
+
 /*
     * Metropolis algorithm for wether we accept a proposed spin swap or not. 
     * One Montecarlo cycle is said to be a full sweep over the lattice 
     * This means that for a L*L lattice, we will do L^2 number of "shots" at our lattice for each MCs. 
 */
-void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *w, double *localValues)
+void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double E, double M, double *w, double *localValues)
 {
-
-    double E = 0.;
-    double M = 0.;
-    initialize(dim, spinMatrix, E, M, 0); // Last arg is initial state: 0 = ordered | 1 = unordered
-
     random_device rd;
     mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
     uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
@@ -218,7 +246,6 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
                 // accept++;
             }
         }
-        // cout << localValues[4] << endl;
         // Update the expectation values
         localValues[0] += (double)E;
         localValues[1] += (double)E * (double)E;
@@ -226,28 +253,7 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
         localValues[3] += (double)M * M;
         localValues[4] += (double)fabs(M);
     }
-    // Write the results from the montecarlo at T to file
-    output(dim, MCs, T, localValues);
 }
-
-void read_input(int &n_spins, int &mcs, double &initial_temp,
-                double &final_temp, double &temp_step)
-{
-    /*
-    Read the input data from terminal, by promts 
-    I am looking to do this by using command line agruments. But can set this up untill then
-    */
-    cout << "Number of Monte Carlo trials =";
-    cin >> mcs;
-    cout << "Lattice size or number of spins (x and y equal) =";
-    cin >> n_spins;
-    cout << "Initial temperature with dimension energy=";
-    cin >> initial_temp;
-    cout << "Final temperature with dimension energy=";
-    cin >> final_temp;
-    cout << "Temperature step with dimension energy=";
-    cin >> temp_step;
-} // end of function read_input
 
 void output(int dim, int MCs, double T, double *average)
 {
