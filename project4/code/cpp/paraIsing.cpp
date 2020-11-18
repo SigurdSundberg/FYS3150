@@ -28,6 +28,8 @@ void initialize(int, int **, int);
 void getEnergyAndMagneticMoment(int, int **, double &, double &);
 void MonteCarloMetropolis(int, int, int **, double, double, double, double *, double *);
 void output(int, int, double, double *);
+void outputTime(double);
+void Equilibrate(int, int, int **, double *);
 
 int main(int argc, char *argv[])
 {
@@ -42,22 +44,23 @@ int main(int argc, char *argv[])
     MPI_Comm_rank(MPI_COMM_WORLD, &currentProcessor);
 
     // Check number of input argumetns
-    if ((currentProcessor == 0) && argc <= 6)
+    if ((currentProcessor == 0) && argc <= 7)
     {
-        cout << "Bad Usage: " << argv[0] << " outputFile dim MCs initConfig initialTemp finalTemp stepTemp" << endl;
+        cout << "Bad Usage: " << argv[0] << "See README.md for how to run the program." << endl;
         exit(1);
     }
 
     // Read from commandline
-    if ((currentProcessor == 0) && argc <= 6)
+    if ((currentProcessor == 0) && argc > 1)
     {
-        filename = argv[0];
-        dim = atoi(argv[1]);
-        MCs = atoi(argv[2]);
-        initialArrangementOfLattice = atoi(argv[3]);
-        tInitial = atof(argv[4]);
-        tFinal = atof(argv[5]);
-        tStep = atof(argv[6]);
+        filename = argv[1];
+        cout << filename << endl;
+        dim = atoi(argv[2]);
+        MCs = atoi(argv[3]);
+        initialArrangementOfLattice = atoi(argv[4]);
+        tInitial = atof(argv[5]);
+        tFinal = atof(argv[6]);
+        tStep = atof(argv[7]);
     }
 
     // Setup output file
@@ -65,8 +68,11 @@ int main(int argc, char *argv[])
     {
         string outputFile = filename;
         outputFile += to_string(dim);
-        ofile.open(outputFile);
-        ofile << MCs << endl;
+        // outputFile += "_";
+        // outputFile += to_string(MCs);
+        cout << outputFile << endl;
+        ofile.open(outputFile, ios_base::app);
+        ofile << MCs * numberOfProcessors << endl;
     }
 
     // Let all the nodes know the common variables
@@ -112,6 +118,7 @@ int main(int argc, char *argv[])
         if (T == tInitial)
         {
             initialize(dim, spinMatrix, initialArrangementOfLattice);
+            Equilibrate(dim, MCs, spinMatrix, w);
         }
         // Find E and M for the current configuration of the spinmatrix.
         // DO NOT KNOW IF THIS IS TOTALLY NEEDED, OR IF I CAN REUSE
@@ -132,20 +139,21 @@ int main(int argc, char *argv[])
         }
 
         // Write the results to file
-        if (currentProcessor == 0)
-        {
-            output(dim, MCs * numberOfProcessors, T, totalValues);
-        }
-    }
-    if (currentProcessor == 0)
-    {
-        ofile.close();
+        // if (currentProcessor == 0)
+        // {
+        //     output(dim, MCs * numberOfProcessors, T, totalValues);
+        // }
     }
     timeFinal = MPI_Wtime();
     timeTotal = timeFinal - timeStart;
     if (currentProcessor == 0)
     {
-        cout << "Time: --- " << timeTotal << " seconds --- on " << numberOfProcessors << endl;
+        cout << "Time: --- " << timeTotal << " seconds --- on " << numberOfProcessors << " processors." << endl;
+        outputTime(timeTotal);
+    }
+    if (currentProcessor == 0)
+    {
+        ofile.close();
     }
 
     // Free memory
@@ -255,6 +263,32 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double E
     }
 }
 
+void Equilibrate(int dim, int MCs, int **spinMatrix, double *w)
+{
+    random_device rd;
+    mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
+    uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
+
+    int totalSpins = dim * dim;
+    for (int cycle = 0; cycle < MCs / 10; cycle++) // We want to discard 10% of the spins. Since MC is greedy, we will still use the full number of cycles for the rest
+    {
+        for (int i = 0; i < totalSpins; i++)
+        {
+            int ri = (int)(RNG(generator) * (double)dim);
+            int rj = (int)(RNG(generator) * (double)dim);
+
+            int nearestNeighbors = (spinMatrix[ri][periodic(rj, dim, -1)] + spinMatrix[ri][periodic(rj, dim, 1)] + spinMatrix[periodic(ri, dim, -1)][rj] + spinMatrix[periodic(ri, dim, 1)][rj]);
+            int dE = 2 * spinMatrix[ri][rj] * nearestNeighbors;
+
+            double r = RNG(generator);
+            if (r <= w[dE + 8])
+            {
+                spinMatrix[ri][rj] *= -1;
+            }
+        }
+    }
+}
+
 void output(int dim, int MCs, double T, double *average)
 {
     double LL = dim * dim; // Dimension of the matrix
@@ -266,9 +300,9 @@ void output(int dim, int MCs, double T, double *average)
     double M = average[2] * norm;
     double MM = average[3] * norm;
     double absM = average[4] * norm;
-    double absMM = average[5] * norm;
     double Evariance = (EE - (E * E)) / LL;
     double Mvariance = (MM - (absM * absM)) / LL;
+    // cout << E << " " << EE << " " << M << " " << MM << " " << Evariance << " " << Mvariance << endl;
 
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(15) << setprecision(8) << T;
@@ -278,8 +312,10 @@ void output(int dim, int MCs, double T, double *average)
 
     ofile << setw(15) << setprecision(8) << M / LL;
     ofile << setw(15) << setprecision(8) << Mvariance / T;
-    ofile << setw(15) << setprecision(8) << absM / LL;
-
-    ofile << setw(15) << setprecision(8) << EE;
-    ofile << setw(15) << setprecision(8) << MM << endl;
+    ofile << setw(15) << setprecision(8) << absM / LL << endl;
+}
+void outputTime(double time)
+{
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << time << endl;
 }

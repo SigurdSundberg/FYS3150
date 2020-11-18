@@ -1,0 +1,234 @@
+% \documentclass[10pt, a4paper]{amsart}
+\documentclass[%
+reprint,
+nofootinbib,
+%superscriptaddress,
+%groupedaddress,
+%unsortedaddress,
+%runinaddress,
+%frontmatterverbose,
+%preprint,
+%showpacs,preprintnumbers,
+%nofootinbib,
+%nobibnotes,
+%bibnotes,
+amsmath,amssymb,
+aps,
+%pra,
+%prb,
+%rmp,
+%prstab,
+%prstper,
+%floatfix,
+]{revtex4-1}
+\usepackage[]{graphicx}
+\usepackage{float}
+\usepackage[]{hyperref}
+\usepackage[]{physics}
+\usepackage[]{listings}
+\usepackage[T1]{fontenc}
+\usepackage{color}
+\usepackage[]{subcaption}
+\usepackage[ruled,vlined]{algorithm2e}
+\usepackage{amssymb, amsmath}
+
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\newcommand\todo[1]{\textcolor{red}{#1}}
+
+\lstset{ %
+	backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+	basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+	breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+	breaklines=true,                 % sets automatic line breaking
+	captionpos=b,                    % sets the caption-position to bottom
+	commentstyle=\color{mygreen},    % comment style
+	deletekeywords={...},            % if you want to delete keywords from the given language
+	escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+	extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+	frame=single,	                   % adds a frame around the code
+	keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+	keywordstyle=\color{blue},       % keyword style
+	language=c++,                    % the language of the code
+	otherkeywords={*,...},           % if you want to add more keywords to the set
+	rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+	showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+	showstringspaces=false,          % underline spaces within strings only
+	showtabs=false,                  % show tabs within strings adding particular underscores
+	stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+	stringstyle=\color{mymauve},     % string literal style
+	tabsize=2,	                     % sets default tabsize to 2 spaces
+}
+
+
+\begin{document}
+	
+\title{Monte Carlo simulations\\
+	\normalsize{The Ising Model and Phase transition} \\
+	\hrulefill\small{ FYS3150: Computational Physics }\hrulefill}
+
+\author{Sigurd Sandvoll Sundberg}\homepage{https://github.com/SigurdSundberg/FYS3150}
+
+\affiliation{%
+	Department of Geosciences, University of Oslo\\
+}%
+
+\date{\today}
+
+\begin{abstract}%[0]
+
+\end{abstract}
+
+\maketitle 
+
+\section{Introduction} %0
+
+\section{Theory} %0
+The Ising model is a binary system, where the objects at each lattice site can take one of two values, either spin up or spin down. 
+The energy of the Ising model, with no external magnetic field can be expressed as 
+\begin{equation}
+	E = -J\sum_{\langle k,e \rangle} s_ks_e,
+\end{equation}
+where we sum over the nearest neighbors interactions at each lattice site and $s_i$ can take the values $\pm 1$, which represents either spin up or spin down, respectively. 
+
+\subsection{Canonical Ensemble}
+In this article we will be working with an canonical ensemble, where the energy follows an expectation value at a given temperature. For us to calculate the expectation values such as the mean energy $\langle E \rangle$, we will be using a probability distribution, namely the Boltzmann distribution
+\begin{equation}
+	P_i(\beta) = \frac{e^{-\beta E_i}}{Z}
+\end{equation}
+where $\beta = 1/k_BT$ being the inverse temperature, $k_B$ is the Boltzmann constant, $E_i$ is the energy at microstate $i$ and Z is the partition function. We will in this article use natural units, that is $k_B = J = 1$. 
+
+The partition function Z is given as 
+\begin{equation}\label{eq:Z}
+	Z = \sum_{i=1}^{M}e^{-\beta E_i},
+\end{equation} 
+where we sum over all microstates M.
+
+The expectation value of the energy can be calculated from the probability distribution $P_i$ as 
+\begin{equation}\label{eq:E}
+	\langle E\rangle = \sum_{i=1}^{M}E_iP_i(\beta) = \frac{1}{Z}\sum_{i=1}^ME_ie^{-\beta E_i}
+\end{equation}
+
+The corresponding variance is defined as 
+\begin{equation}
+	\begin{split}
+\sigma_E^2 &= \langle E^2 \rangle -\langle E\rangle^2 \\
+&= \frac{1}{Z}\sum_{i=1}^ME_i^2e^{-\beta E_i} - \left(\frac{1}{Z}\sum_{i=1}^ME_i^2e^{-\beta E_i}\right)^2
+	\end{split}
+\end{equation}
+If we divide by $k_BT^2$, we obtain the specific heat 
+\begin{equation}\label{eq:cv}
+	C_v = \frac{1}{k_BT^2}\left(\langle E^2 \rangle -\langle E\rangle^2\right).
+\end{equation}
+
+In the same way we can evaluate the mean magnetization through 
+\begin{equation}\label{eq:M}
+	\langle\mathcal{M}\rangle = \sum_i^M\mathcal{M}P_i(\beta) = \frac{1}{Z}\sum_i^M\mathcal{M}e^{-\beta E_i}
+\end{equation}
+and the corresponding variance 
+\begin{equation}
+\begin{split} 
+		\sigma_\mathcal{M}^2			&=\langle \mathcal{M}^2 \rangle -\langle \mathcal{M}\rangle^2 \\
+			&= \frac{1}{Z}\sum_{i=1}^M\mathcal{M}_i^2e^{-\beta E_i} - \left(\frac{1}{Z}\sum_{i=1}^M\mathcal{M}_i^2e^{-\beta E_i}\right)^2.
+		\end{split} 
+\end{equation}
+This quantity defines the susceptibility $\mathcal{X}$
+\begin{equation}\label{eq:x}
+	\mathcal{X} = \frac{1}{k_BT}\left(\langle \mathcal{M}^2 \rangle -\langle \mathcal{M}\rangle^2\right).
+\end{equation}
+\section{Phase Transition}
+\subsection{Analytical Results}
+In 1944 Lars Onsager was the first to solve the Ising model analytically for a general lattice size L\cite{LarsOnsager}. He found that the critical temperature of the system is 
+\begin{equation}
+	T_C = \frac{2J}{k_Bln(1+\sqrt{2})}\simeq 2.269\dots
+\end{equation} 
+We will use the ideas from phase transition to try to estimate $T_C$, using larger lattice size. 
+
+However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:E}, \ref{eq:Z}, \ref{eq:M}), and the value displayed in table \ref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
+
+We find that 
+\begin{align}
+	Z &= 12 + 4\cosh(8J\beta) && \beta = (k_BT)^{-1}\\
+	\langle E\rangle &= -\frac{32J}{Z}\sinh(8J\beta)\\
+	\langle E^2\rangle &= \frac{256}{Z}\cosh(8J\beta)\\
+	\langle M\rangle &= 0\\
+	\langle M^2\rangle &=\frac{32}{Z}\left(e^{8J\beta} + 1\right)\\
+	\langle \abs{M}\rangle &= \frac{8}{Z}\left(e^{8J\beta} + 2\right)
+\end{align}
+
+From equation \eqref{eq:cv}, the heat capacity of the system is 
+\begin{equation}
+	C_v = \frac{256}{Zk_BT^2}\left( \cosh(8J\beta) - \frac{4}{Z}\sinh^2(8J\beta)\right)
+\end{equation}
+and we can find the susceptibility from equation \eqref{eq:x}, which can be expressed as 
+\begin{equation}
+	\mathcal{X} = \frac{32\beta}{Z}\left(e^{8J\beta} +1\right).
+\end{equation}
+\begin{table}
+	\caption{Display over the possible spin configurations for the 2x2 lattice. As well as listing the energy and magnetization of system.}
+	\label{tab:2x2}
+\begin{tabular}{|c|c|c|c|c|}
+	\hline 
+	$N_\uparrow$ & Degeneracy & E  & M & Configurations\\
+	\hline
+	4 & 1 & -8J & 4 & $\begin{bmatrix}\uparrow & \uparrow \\ \uparrow&\uparrow\end{bmatrix}$\\
+	3 & 4 & 0 & 2 & $\begin{bmatrix}\downarrow & \uparrow \\ \uparrow&\uparrow\end{bmatrix}\begin{bmatrix}\uparrow & \downarrow \\ \uparrow&\uparrow\end{bmatrix}\begin{bmatrix}\uparrow & \uparrow \\ \downarrow&\uparrow\end{bmatrix}\begin{bmatrix}\uparrow & \uparrow \\ \uparrow&\downarrow\end{bmatrix}$\\
+	2 & 4 & 0 & 0 &$\begin{bmatrix}\downarrow & \downarrow \\ \uparrow&\uparrow\end{bmatrix}\begin{bmatrix}\uparrow & \uparrow \\ \downarrow&\downarrow\end{bmatrix}\begin{bmatrix}\downarrow & \uparrow \\ \downarrow&\uparrow\end{bmatrix}\begin{bmatrix}\uparrow & \downarrow \\ \uparrow&\downarrow\end{bmatrix}$\\
+	2 & 2 & 8J & 0&$\begin{bmatrix}\downarrow & \uparrow \\ \uparrow&\downarrow\end{bmatrix}\begin{bmatrix}\uparrow & \downarrow \\ \downarrow&\uparrow\end{bmatrix}$\\
+	1 & 4 & 0 & -2&$\begin{bmatrix}\uparrow & \downarrow \\ \downarrow&\downarrow\end{bmatrix}\begin{bmatrix}\downarrow & \uparrow \\ \downarrow&\downarrow\end{bmatrix}\begin{bmatrix}\downarrow & \downarrow \\ \uparrow&\downarrow\end{bmatrix}\begin{bmatrix}\downarrow & \downarrow \\ \downarrow&\uparrow\end{bmatrix}$\\
+	0 & 1 & -8J & -4&$\begin{bmatrix}\downarrow & \downarrow \\ \downarrow&\downarrow\end{bmatrix}$\\
+	\hline
+\end{tabular}
+\end{table}
+
+
+
+
+\section{Algorithms}%0
+\section{Periodic Boundary Conditions}
+When applying periodic boundary conditions we need a way to index ghosts points. In this project to represent our lattice we will use a matrix of size LxL, thus needing to index points outside the scope of our lattice. The simple way of doing so would be to implement \texttt{if}-statements to check whether we are indexing a ghost point or not. This is however slow and hard to optimize. 
+
+A second possibility for handling the ghost points would be to expand our matrix to a (L+2)x(L+2) matrix, where we have the ability to index the ghosts points directly without the use of \texttt{if}-statements. However this runs into its own limitations, namely we would need to update the ghosts points whenever we change its corresponding value. In a 1-dimensional case this would lead to us having to update index 0 if we made a change to index n, for an array from 0 to n+1. This can be implemented using either \texttt{if}-statements or using properties of modulus operator. 
+
+A third method, which is the one used in this project, is using the modulus operator directly on a LxL matrix. This is done by looking at the point of interest in the matrix and compute its neighboring indexes by the following equation
+\begin{equation}
+	\text{neighbor} = (\text{current} + \text{L} + \text{position}) \% (\text{L})
+\end{equation}
+where current is the current matrix index, L is the dimensionality of the matrix and position is the index of the neighbor relative to current position. 
+This equation handles both the ghost points and the normal points of the matrix and creates an efficient way for us to access all points of the matrix. 
+
+By implementing this as an inline function, we are able to, at compile time, to reduce the time used of our program. 
+
+
+\section{Metropolis-Hastings algorithm}
+\begin{algorithm}[H]\label{algo:metropolis}
+	\SetAlgoLined
+	\caption{Monte Carlo simulation with Metropolis sampling}
+	\texttt{Pick T and $L_i$}	\\
+	\texttt{Compute $E_i$ and $M_i$}\\
+	\For{\texttt{i = 0; i < MC cycles; i++}}{
+		\For{\texttt{j = 0; j < Total Spins; j++}}{
+			\texttt{Sample a random index of the spin matrix}\\
+			\texttt{Compute $\Delta E$}\\
+			\If{\texttt{$\Delta E$ < 0 or r < $e^{-\beta\Delta E}$}}{
+				\texttt{Accept the flip}\\
+				\texttt{Update E and M}\\
+			}
+			\texttt{Update the mean values for E and M}
+		}
+	}
+	\texttt{Normalize all computed values}
+\end{algorithm}
+
+\section{Results}	% 0
+
+\section{Discussion} %0
+
+\section{Conclusion} %0
+
+\bibliography{bib_proj4}
+\bibliographystyle{plain}
+
+
+\end{document}

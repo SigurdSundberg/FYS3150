@@ -11,12 +11,14 @@ start sampeling new range.
 #include <iomanip>
 #include <random>
 #include <string>
+#include <chrono>
 
 #include "lib.h"
 
 using namespace std;
 
 ofstream ofile;
+ofstream energyProbabilityFile;
 
 inline int periodic(int i, int dim, int pos)
 {
@@ -24,9 +26,12 @@ inline int periodic(int i, int dim, int pos)
 }
 
 void initialize(int, int **, double &, double &, int);
-void MonteCarloMetropolis(int, int, int **, double, double *, double *);
+void MonteCarloMetropolis(int, int, int **, double, double *, double *, int);
 void read_input(int &, int &, double &, double &, double &);
 void output(int, int, double, double *);
+void output2(int, int, double, double *, int);
+void output3(int, int, double *);
+void outputTime(double);
 void analytical_2x2_lattice(double *, double);
 
 int main(int argc, char const *argv[])
@@ -37,31 +42,23 @@ int main(int argc, char const *argv[])
     */
     int dim;
     int MCs;
-
-    // string filename = "./data/2x2/twoXtwo";
-    string filename = "./cpp/data/2x2/twoXtwo";
-
-    // int burn = 1e6; // Burn in period
+    int order;
 
     double T_initial, T_final, T_step, E, M; // Initial values used
 
     double w[17], expectation[6];
-    /* 
-    w = [-8*exp(dE/T), 0, 0, 0, -4*exp(dE/T), 0, 0, 0, 0*exp(dE/T), 0, 0, 0, 4*exp(dE/T), 0, 0, 0, 8*exp(dE/T)]
-    expectation = [energy, energy^2, magnetization, magnetization^2, |magenetaziation|]
-    */
 
-    // Read input data
-    // read_input(dim, MCs, T_initial, T_final, T_step);
+    string filename = argv[1];
+    dim = atoi(argv[2]);
+    MCs = atoi(argv[3]);
+    order = atoi(argv[4]);
+    T_initial = atof(argv[5]);
+    T_final = atof(argv[6]);
+    T_step = atof(argv[7]);
+    cout << filename << " " << dim << " " << MCs << " " << order << " " << T_initial << " " << T_final << " " << T_step << endl;
 
-    // Hard coding for the 2x2 lattice for now
-    T_initial = 1;
-    T_step = 1;
-    T_final = 1.2;
-    MCs = atoi(argv[2]);
-    dim = 2;
-
-    filename += argv[1];
+    filename += argv[2];
+    cout << filename << endl;
 
     int **spinMatrix;
     spinMatrix = new int *[dim];
@@ -71,10 +68,9 @@ int main(int argc, char const *argv[])
     }
 
     // spinMatrix = (int **)matrix(dim, dim, sizeof(int));
+    auto start = chrono::high_resolution_clock::now();
 
-    ofile.open(filename);
-    ofile << "Format:    T           Eavg          EvarianceAvg       Mavg           MvarianceAvg     MabsAvg" << endl;
-
+    ofile.open(filename, ios_base::app);
     for (double T = T_initial; T <= T_final; T += T_step)
     {
         // Setup the inital values for E and M
@@ -96,9 +92,13 @@ int main(int argc, char const *argv[])
         }
 
         // Perform the Metropolis algorithm.
-        MonteCarloMetropolis(dim, MCs, spinMatrix, T, w, expectation);
+        MonteCarloMetropolis(dim, MCs, spinMatrix, T, w, expectation, order);
     }
-
+    string tFilename = filename;
+    auto finish = chrono::high_resolution_clock::now();
+    double time = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
+    outputTime(time);
+    // COmment to save
     // Free memory
     for (int i = 0; i < dim; i++)
     {
@@ -163,18 +163,17 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
     * One Montecarlo cycle is said to be a full sweep over the lattice 
     * This means that for a L*L lattice, we will do L^2 number of "shots" at our lattice for each MCs. 
 */
-void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *w, double *localValues)
+void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *w, double *localValues, int order)
 {
-
     double E = 0.;
     double M = 0.;
-    initialize(dim, spinMatrix, E, M, 0); // Last arg is initial state: 0 = ordered | 1 = unordered
+    initialize(dim, spinMatrix, E, M, order); // Last arg is initial state: 0 = ordered | 1 = unordered
 
     random_device rd;
     mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
     uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
 
-    // int accept = 0;
+    int accept = 0;
     int totalSpins = dim * dim;
     for (int cycle = 0; cycle < MCs; cycle++)
     {
@@ -191,13 +190,13 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
 
             // Random number which decides wether we accept the energy change or not
             double r = RNG(generator);
-            if (r <= w[dE + 8])
+            if (r <= w[dE + 8] || dE < 0)
             {
                 // We accept the proposed spin
                 spinMatrix[ri][rj] *= -1;
                 M += (double)2 * spinMatrix[ri][rj];
                 E += (double)dE;
-                // accept++;
+                accept++;
             }
         }
         // cout << localValues[4] << endl;
@@ -207,9 +206,16 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
         localValues[2] += (double)M;
         localValues[3] += (double)M * M;
         localValues[4] += (double)fabs(M);
+        // output2(dim, cycle + 1, T, localValues, accept); // For number of accepted states and finding equilibrium
+
+        // if (/* condition */)
+        // {
+        //     /* code */
+        //     // output3(dim, cycle, localValues)
+        // }
     }
     // Write the results from the montecarlo at T to file
-    output(dim, MCs, T, localValues);
+    // output(dim, MCs, T, localValues);
 }
 
 /* 
@@ -265,6 +271,36 @@ void output(int dim, int MCs, double T, double *average)
     ofile << setw(15) << setprecision(8) << MM << endl;
 }
 
+void output2(int dim, int MCs, double T, double *average, int accept)
+{
+    double LL = dim * dim;             // Dimension of the matrix
+    double norm = 1.0 / ((double)MCs); // Total number of cycles
+
+    double E = average[0] * norm;
+    double absM = average[4] * norm;
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << T;
+    ofile << setw(15) << setprecision(8) << MCs;
+    ofile << setw(15) << setprecision(8) << accept;
+    ofile << setw(15) << setprecision(8) << E / LL;
+    ofile << setw(15) << setprecision(8) << absM / LL << endl;
+}
+void output3(int dim, int MCs, double *average)
+{
+    double LL = dim * dim;             // Dimension of the matrix
+    double norm = 1.0 / ((double)MCs); // Total number of cycles
+
+    double E = average[0] * norm;
+
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << E / LL << endl;
+}
+void outputTime(double time)
+{
+    ofile << setiosflags(ios::showpoint | ios::uppercase);
+    ofile << setw(15) << setprecision(8) << time << endl;
+}
 /*
     * This part of the project can be handeled in python instead. 
     * It will be an easier implementation for it
