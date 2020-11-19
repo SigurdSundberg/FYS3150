@@ -32,6 +32,7 @@ aps,
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{amssymb, amsmath}
 
+
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
 
@@ -92,7 +93,7 @@ The energy of the Ising model, with no external magnetic field can be expressed 
 \end{equation}
 where we sum over the nearest neighbors interactions at each lattice site and $s_i$ can take the values $\pm 1$, which represents either spin up or spin down, respectively. 
 
-\subsection{Canonical Ensemble}
+\subsection{Canonical Ensemble} %1
 In this article we will be working with an canonical ensemble, where the energy follows an expectation value at a given temperature. For us to calculate the expectation values such as the mean energy $\langle E \rangle$, we will be using a probability distribution, namely the Boltzmann distribution
 \begin{equation}
 	P_i(\beta) = \frac{e^{-\beta E_i}}{Z}
@@ -137,15 +138,24 @@ This quantity defines the susceptibility $\mathcal{X}$
 \begin{equation}\label{eq:x}
 	\mathcal{X} = \frac{1}{k_BT}\left(\langle \mathcal{M}^2 \rangle -\langle \mathcal{M}\rangle^2\right).
 \end{equation}
-\section{Phase Transition}
-\subsection{Analytical Results}
+\subsection{Phase Transition} %1
+For our 2-dimensional Ising model, we from from a finite magnetization $\langle \mathcal{M} \rangle \neq 0$ to a paramagnetic phase with $\langle \mathcal{M} \rangle = 0$ at a critical temperature $T_C$. At this critical temperature the mean magnetization approaches zero with an infinite slope. Quantities like the heat capacity $C_v$ and the susceptibility $\mathcal{X}$ are discontinuous or diverge in the thermodynamic limit\cite{morten}, this happens as the lattice size L approaches infinity. As we can not simulate a infinite lattice, we will have to deal with approximating the critical temperature at which phase transition occurs. 
+
+When studying a finite lattice, the variance in energy and magnetization no longer diverge or are discontinuous, however they scale as $\sim 1/\sqrt{M}$, where M is given as $M = 2^{L^2}$ microstates, for an LxL lattice. This means that we will not be able to observe a diverging behavior, but we will should be able to see as we increase the lattice size, that the peaks of $C_v$ and $\mathcal{X}$ should get sharper. 
+
+The critical temperature for a finite lattice follows the following relation 
+\begin{equation}\label{eq:3}
+	T_C(L) = aL^{-1/\nu} + T_C(\infty),
+\end{equation}
+where $T_C(L)$ is the critical temperature found for a finite lattice size LxL. From equation \eqref{eq:3} we will try to estimate $T_C(\infty)$ using $\nu = 1$ by studying the linear relation between the critical temperature and lattice size. 
+\subsection{Analytical Results} %1
 In 1944 Lars Onsager was the first to solve the Ising model analytically for a general lattice size L\cite{LarsOnsager}. He found that the critical temperature of the system is 
 \begin{equation}
 	T_C = \frac{2J}{k_Bln(1+\sqrt{2})}\simeq 2.269\dots
 \end{equation} 
 We will use the ideas from phase transition to try to estimate $T_C$, using larger lattice size. 
 
-However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:E}, \ref{eq:Z}, \ref{eq:M}), and the value displayed in table \ref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
+However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:E}, \ref{eq:Z}, \ref{eq:M}), and the value displayed in \autoref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
 
 We find that 
 \begin{align}
@@ -166,6 +176,7 @@ and we can find the susceptibility from equation \eqref{eq:x}, which can be expr
 	\mathcal{X} = \frac{32\beta}{Z}\left(e^{8J\beta} +1\right).
 \end{equation}
 \begin{table}
+	\vspace{10pt}
 	\caption{Display over the possible spin configurations for the 2x2 lattice. As well as listing the energy and magnetization of system.}
 	\label{tab:2x2}
 \begin{tabular}{|c|c|c|c|c|}
@@ -183,25 +194,11 @@ and we can find the susceptibility from equation \eqref{eq:x}, which can be expr
 \end{table}
 
 
-
-
 \section{Algorithms}%0
-\section{Periodic Boundary Conditions}
-When applying periodic boundary conditions we need a way to index ghosts points. In this project to represent our lattice we will use a matrix of size LxL, thus needing to index points outside the scope of our lattice. The simple way of doing so would be to implement \texttt{if}-statements to check whether we are indexing a ghost point or not. This is however slow and hard to optimize. 
+\subsection{Markov Chains}
 
-A second possibility for handling the ghost points would be to expand our matrix to a (L+2)x(L+2) matrix, where we have the ability to index the ghosts points directly without the use of \texttt{if}-statements. However this runs into its own limitations, namely we would need to update the ghosts points whenever we change its corresponding value. In a 1-dimensional case this would lead to us having to update index 0 if we made a change to index n, for an array from 0 to n+1. This can be implemented using either \texttt{if}-statements or using properties of modulus operator. 
-
-A third method, which is the one used in this project, is using the modulus operator directly on a LxL matrix. This is done by looking at the point of interest in the matrix and compute its neighboring indexes by the following equation
-\begin{equation}
-	\text{neighbor} = (\text{current} + \text{L} + \text{position}) \% (\text{L})
-\end{equation}
-where current is the current matrix index, L is the dimensionality of the matrix and position is the index of the neighbor relative to current position. 
-This equation handles both the ghost points and the normal points of the matrix and creates an efficient way for us to access all points of the matrix. 
-
-By implementing this as an inline function, we are able to, at compile time, to reduce the time used of our program. 
-
-
-\section{Metropolis-Hastings algorithm}
+\subsection{Statistical Physics}
+\subsection{Algorithm M}
 \begin{algorithm}[H]\label{algo:metropolis}
 	\SetAlgoLined
 	\caption{Monte Carlo simulation with Metropolis sampling}
@@ -220,7 +217,97 @@ By implementing this as an inline function, we are able to, at compile time, to 
 	}
 	\texttt{Normalize all computed values}
 \end{algorithm}
+\section{Method}
+\subsection{Lattice Representation} %1
+In order for us to represent the lattice in a efficient way, we will be using a matrix representation of the lattice. This enables us to easily apply our boundary conditions as well as enables us to with ease to increase the efficiency of our code by improving upon our algorithm. Both of which we will discuss shortly. 
+\subsection{Periodic Boundary Conditions} %1
+For boundary conditions we have chosen to use periodic boundary conditions, and as the lattice grows towards the thermodynamic limit, the choice of boundary conditions does not play a role. As approximating infinity with one additional element does not change the outcome. We are essentially going to approximate a large system, by making it slightly larger. 
 
+When applying periodic boundary conditions we need a way to index ghosts points, that is indexing points outside the scope of our lattice representation. The simple way of doing so would be to implement \texttt{if}-statements to check whether we are indexing a ghost point or not. This is however slow and hard to optimize. 
+
+A second possibility for handling the ghost points would be to expand our matrix to a (L+2)x(L+2) matrix, where we have the ability to index the ghosts points directly without the use of \texttt{if}-statements. However this runs into its own limitations, namely we would need to update the ghosts points whenever we change its corresponding value. In a 1-dimensional case this would lead to us having to update index 0 if we made a change to index n, for an array from 0 to n+1. This can be implemented using either \texttt{if}-statements or using properties of modulus operator. 
+
+A third method, which is the one used in this project, is using the modulus operator directly on a LxL matrix. This is done by looking at the point of interest in the matrix and compute its neighboring indexes by the following equation
+\begin{equation}
+	\text{neighbor} = (\text{current} + \text{L} + \text{position}) \text{MOD} (\text{L})
+\end{equation}
+where current is the current matrix index, L is the dimensionality of the matrix and position is the index of the neighbor relative to current position. 
+This equation handles both the ghost points and the normal points of the matrix and creates an efficient way for us to access all points of the matrix. 
+
+By implementing this as an inline function, we are able to, at compile time, to reduce the time used of our program. 
+
+\subsection{Exponential}  %1
+In algorithm \ref{algo:metropolis} we are required to calculate $e^{-\beta\Delta E}$ for every spin, that is if we let M = number of Monte Carlo cycles and $L^2$ denote total number of spins, we would have to calculate this value $M\cdot L^2$ times. This would become exponentially large as we tackle larger lattice sizes with large amount of Monte Carlo cycles. To help us having to calculate the exponential millions of times per run, we can use some properties of the 2-dimensional lattice. 
+
+One method of finding the change in energy after a lattice sweep is, sweeping through the lattice and calculate the energy. This is however not inefficient and not the chosen method. Instead we sweep through the lattice and only look at one spin at a time and updating the energy each time. This allows us to precalculate the values of the exponential as the change in energy at each lattice site only can take one of five values as shown in \autoref{tab:exp}. This enables ut for a given temperature T, to calculate all the possible values from the exponential prior to performing the Monte Carlo Metropolis algorithm. 
+
+\begin{table}
+	\vspace{10pt}
+	\caption{The possible changes in energy $\Delta$E for the possible different neighbor configurations. We see that each lattice site only can have five different values for $\Delta$E, as they are only interacting with their nearest neighbors. The position of the neighboring spins does not change the change in energy, this is easy to show.}
+		\label{tab:exp}
+	\begin{tabular}{@{}|c|c|c|c|c|@{}}
+		\hline
+		Initial state & Final state & Initial E[J] & Final E[J] & $\Delta$E[J]\\\hline
+$\begin{matrix}& \uparrow & \\ \uparrow & \uparrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$         & $\begin{matrix}& \uparrow & \\ \uparrow & \downarrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$ & -4 & 4 &     8                  \\
+$\begin{matrix}& \downarrow & \\ \uparrow & \uparrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$       & $\begin{matrix}& \downarrow & \\ \uparrow & \downarrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$ & -2 &  2    & 4                  \\
+$\begin{matrix}& \downarrow & \\ \downarrow & \uparrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$     & $\begin{matrix}& \downarrow & \\ \downarrow & \downarrow & \uparrow \\ & \uparrow & \\ & & & \end{matrix}$ & 0 & 0   & 0                  \\
+$\begin{matrix}& \downarrow & \\ \downarrow & \uparrow & \downarrow \\ & \uparrow & \\ & & & \end{matrix}$   & $\begin{matrix}& \downarrow & \\ \downarrow & \downarrow & \downarrow \\ & \uparrow & \\ & & & \end{matrix}$ & 2& -2  & -4                 \\
+$\begin{matrix}& \downarrow & \\ \downarrow & \uparrow & \downarrow \\ & \downarrow & \\ & & & \end{matrix}$ & $\begin{matrix}& \downarrow & \\ \downarrow & \downarrow & \downarrow \\ & \downarrow & \\ & & & \end{matrix}$ & 4 & -4 & -8                 \\ \hline
+	\end{tabular}
+
+\end{table}
+
+\subsection{Change in Energy and Magnetization}%1
+As we are sweeping through our lattice we need to calculate the change in energy $\Delta$E and change in magnetization $\Delta$ M, for each flip we accept. As we saw from \autoref{tab:exp} the change in energy can only take one out of five values, since each spin site is only dependent on its four neighbors, as the other spins remain unchanged. Such that the change in energy $\Delta$E can be found the following way 
+\begin{equation}
+	\Delta E = E^j - E^i
+\end{equation}
+where $E^j$ denotes the energy after the flip and $E^i$ before the flip. We then have 
+\begin{align}
+	\Delta E &= -J\sum_{\langle k,e \rangle} s_k^js_e^j + J\sum_{\langle k,e \rangle} s_k^is_e^i\\
+	&= -J\sum_{\langle k,e \rangle} s_k^j\left(s_e^j - s_e^i\right).
+\end{align}
+We can simplify this further, by looking at $s_e^i = 1$, if we flip it then $s_e^j = -1$ This means that $s_e^j-s_e^i = -2$. Also if $s_e^i = -1$ then $s_e^j = 1$, thus $s_e^j-s_e^i = 2$. Therefore $\Delta$E can be calculated using 
+\begin{equation}
+	\Delta E = 2Js_e^i\sum_{\langle k \rangle}s_k^i
+\end{equation}
+
+The change in magnetization is given in the same way. 
+\begin{align}
+	\Delta M &= M^j - M^i\\
+	&= \sum_{k}s_k^j - \sum_{e}s_e^i\\
+	&= s_k^j - s_k^i \\
+	&= 2s_k^j
+\end{align}
+
+
+\subsection{Initial State}
+To start of our representation of the lattice has no orientation. We would need to give it a starting orientation before performing the Monte Carlo simulations. We have two different ways of initializing the lattice. First, we can have all the spins point the same way, this gives a highly ordered lattice initially. 
+
+A second option is to use a random number generator to randomly assign whether a spin points upwards or downwards, independent of neighboring spins. This gives us a configuration of high disorder. 
+
+For small lattices this is computationally inexpensive, but as the lattice size grows initializing the lattice takes up more and more CPU cycles, if we need to initialize the lattice for each temperature. To reduce the number of CPU cycles we will look into how we can utilize small time steps and the equilibration time of the system to improve our calculations. 
+
+\subsection{Equilibration Time} %1
+At the start of each run, we have a lattice which is given one of two configurations. Either all spins pointing in the same direction, or all spins initial direction randomly chosen. This state is generally far away from the most likely state for a given temperature. As we are mainly interested in the expectation values of the system after reaching most likely state, we need to make sure that our system is at the most likely state before we start gathering data. 
+There are different ways of determining when a system reaches its most likely state. 
+
+One method is to choose a lattice size and run the Monte Carlo simulations, gathering all data and study the data afterwards. By looking at the expectation values as a function of the Monte Carlo cycles, we can approximate how long the system needs to run before reach the most likely state. Afterwards we can let the system run for the number of cycles we found before calculating the expectation values, this is a simple solution, and has its downsides. A downside is that the number of cycles needed to reach the most likely state, may depend on the initial condition and the temperature at the point of calculation. Therefore we can not be sure we have reached the most likely state before sampling our system for expectation values. To counter this we can overestimate the number of cycles we need, but that defeats the purpose of this method. 
+
+A similar method which is easier to implement and does not require trial runs to find the approximation to the most likely state, is to simply slice away a portion of cycles and call it there. For low number of cycles, this also may not lead to the most likely state when we start to collect expectation values, however as the Monte Carlo method is greedy, we would normally use a number of cycles high enough to counter this problem outright. This is the standard approach for Monte Carlo methods and it is general practice to discard 10$\%$ to 15$\%$ of the runs before sampling the system, when it comes to the Ising model. As said however this does not guarantee that we are at an equilibrium position for the, as it depends on both the temperature and initial configuration. 
+
+Another way we could use the fact that for a system in equilibrium, will have little change in the energy between two different configurations. Such that we can sample and check a few cycles for whether the change in energy and magnetization is sufficiently small, however defining sufficiently small is hard. And as we are dealing with random number generators we can never be sure that the consecutive runs are actually at an equilibrium state. So this would either never reach equilibrium or use a large amount of CPU cycles to find equilibrium. 
+
+Lastly we can find the equilibrium from one time step to the next, with time step sufficiently small, by assuming that the equilibrium state for two lattices a small time step apart are the same. 
+
+In this project we have applied a mixture of the different methods. We will be discarding 10$\%$ of the Monte Carlo cycles after the initialization of the lattice, to make sure we are hopefully close to the equilibrium, and start sampling for expectation values for a given T. After we are done sampling for a T, we will assume that the lattice is at equilibrium for the next temperature, with us having a sufficiently small time step. That is us using the old configuration to approximate the new configuration without having to equilibrate the lattice once more. For this we will use a time step between $0.05J/k_B$ to $0.01J/k_B$, depending on lattice size. 
+
+\subsection{Optimization}%1
+For the Monte Carlo methods, \texttt{c++} has been used as a programming language, and without any modifications, the language does not use multi-core processes. Meaning that we are running our programs on one core instead of utilizing the entire machine. As we are dealing with systems which requires many, many CPU cycles, we will use Message Parsing Interface(MPI), to parallelize the program. This allows us to perform multiple Monte Carlo simulations at a time, instead of one. We have here chosen to have each core, perform its own Monte Carlo simulation, effectively increasing the number of cycles we can perform for a given system. All the systems will be initialized by their own core and have no contact until all calculations are done. As an example, instead of running $10^6$ cycles on one core, we are able to run $4\cdot 10^6$ cycles, which is positive for the Monte Carlo method, as it is greedy. 
+
+Another choice could have been to split the cycles into smaller chunks and have each core process a part of the total number of cycles. This is less expensive in CPU time, but in turn results in fewer samplings of the system.  
+
+For this article all results with lattice sizes larger than 20x20, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
 \section{Results}	% 0
 
 \section{Discussion} %0
