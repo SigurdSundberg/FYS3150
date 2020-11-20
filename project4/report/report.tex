@@ -85,7 +85,7 @@ aps,
 
 \section{Introduction} %0
 
-\section{Theory} %0
+\section{Theory} %1
 The Ising model is a binary system, where the objects at each lattice site can take one of two values, either spin up or spin down. 
 The energy of the Ising model, with no external magnetic field can be expressed as 
 \begin{equation}
@@ -93,9 +93,10 @@ The energy of the Ising model, with no external magnetic field can be expressed 
 \end{equation}
 where we sum over the nearest neighbors interactions at each lattice site and $s_i$ can take the values $\pm 1$, which represents either spin up or spin down, respectively. 
 
+We will in this article use natural units such as $k_B = J = 1$, where $k_B$ is the Boltzmann constant. 
 \subsection{Canonical Ensemble} %1
 In this article we will be working with an canonical ensemble, where the energy follows an expectation value at a given temperature. For us to calculate the expectation values such as the mean energy $\langle E \rangle$, we will be using a probability distribution, namely the Boltzmann distribution
-\begin{equation}
+\begin{equation}\label{eq:boltz}
 	P_i(\beta) = \frac{e^{-\beta E_i}}{Z}
 \end{equation}
 where $\beta = 1/k_BT$ being the inverse temperature, $k_B$ is the Boltzmann constant, $E_i$ is the energy at microstate $i$ and Z is the partition function. We will in this article use natural units, that is $k_B = J = 1$. 
@@ -148,6 +149,8 @@ The critical temperature for a finite lattice follows the following relation
 	T_C(L) = aL^{-1/\nu} + T_C(\infty),
 \end{equation}
 where $T_C(L)$ is the critical temperature found for a finite lattice size LxL. From equation \eqref{eq:3} we will try to estimate $T_C(\infty)$ using $\nu = 1$ by studying the linear relation between the critical temperature and lattice size. 
+
+
 \subsection{Analytical Results} %1
 In 1944 Lars Onsager was the first to solve the Ising model analytically for a general lattice size L\cite{LarsOnsager}. He found that the critical temperature of the system is 
 \begin{equation}
@@ -155,7 +158,7 @@ In 1944 Lars Onsager was the first to solve the Ising model analytically for a g
 \end{equation} 
 We will use the ideas from phase transition to try to estimate $T_C$, using larger lattice size. 
 
-However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:E}, \ref{eq:Z}, \ref{eq:M}), and the value displayed in \autoref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
+However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:Z},\ref{eq:E}, \ref{eq:M}), and the value displayed in \autoref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
 
 We find that 
 \begin{align}
@@ -194,11 +197,107 @@ and we can find the susceptibility from equation \eqref{eq:x}, which can be expr
 \end{table}
 
 
-\section{Algorithms}%0
-\subsection{Markov Chains}
+\section{Algorithms}%1
+We will be studying the 2-dimensional Ising model, through the use of Monte Carlo methods. Monte Carlo methods are class of computational algorithms, which use repeated random sampling to obtain numerical solutions. The can stretch from easy and trivial to implement to more advanced models where one utilizes different properties of a system to create more efficient algorithms. 
 
-\subsection{Statistical Physics}
-\subsection{Algorithm M}
+Random sampling with Monte Carlo method gives an asymptotic approximation error of $\sigma/\sqrt{N}$. Where $\sigma$ is the variance of the system and $N$ is the number of samples\cite{morten}. Compared to simpler methods for approximating numerical results, the Monte Carlo method performs poorly when the sample size is small. Thus it could be infeasible for simpler problems to apply Monte Carlo methods to simple systems. However the Ising model has not a simple system to simulate and fits the Monte Carlo method perfectly. 
+\subsection{Markov Chains}%1
+A Markov process (or chain) generates random states by use of random walks, that depends on a chosen probability distribution. A move from state $i$ to a new state $j$ can be described by a \textit{transition probability} $P(i\rightarrow j)$, which is the probability that the system will go from state $i$ to state $j$. 
+
+If we let a Markov chain run for long enough under certain conditions, the system will reach its most likely state, regardless of initial state. In our case the most likely state is the equilibrium state of the system, with the probability distribution $w_j(t_k) = e^{\beta E_j}$. The time development of our probability distribution is given by 
+\begin{equation}
+	w_{j}(t_{k+1}) = P(i \rightarrow j)w_i(t_k) = P_{ij}w_i(t_k).
+\end{equation}
+In vector-matrix representation, we have 
+\begin{equation}
+	\vec{w}(t_{k+1}) = \mathbf{P}\vec{w}(t_k)
+\end{equation}
+where the transition probability $P_{ij}$ is represented on matrix form. 
+The system is said to be in its most likely state when $\abs{\abs{w(t_{k+1}) - w(t_k)}} \rightarrow 0$. 
+
+Following are some properties that the Markov process must obey. 
+\subsubsection{Time Independence}%1
+The transition probability must be time-independent, such that for a given time $t_v$, the probability for transitioning from a state $i \rightarrow j$ is the same as at time $t_u$.
+
+The second part of the time independence is that $P(i \rightarrow j)$ should only be dependent on the states $i$ and $j$, that is the system is said to be "without history", independent of the time evolution of the system. 
+\subsubsection{State Change}%1
+A Markov chain must put the system in some state $j$ given a state $i$. So the system follows the following equation 
+\begin{equation}
+	\sum_j P(i\rightarrow j) = 1,
+\end{equation}
+this includes a state change from $i \rightarrow i$, such that $P(i \rightarrow i) \neq 0$.
+\subsubsection{Ergodicity}%1
+A last principle for the Markov chain is that:  
+\textit{It is possible to reach any state $j$, from any state $i$ given a long enough Markov chain}. This condition is  called ergodicity. It is important because every state $i$ in the Boltzmann distribution has a non-zero probability. 
+\subsection{Metropolis Algorithm}%1
+In most cases, including ours the transition probability $P_{ij} = P(i\rightarrow j)$ is not known.  A Markov chain is such a process where the transition probability is generally unknown. This is where the Metropolis algorithm comes to the rescue. 
+
+We can model the transition probability as the product of two probabilities. One probability of accepting the proposed move from state $i$ to state $j$ and the other probability for making the transition to the state $j$ being in the state $i$\cite{morten}. We will label these probabilities as $A(i \rightarrow j)$ and $T(i \rightarrow j)$, respectively. Our transition probability then reads 
+\begin{equation}
+	P(i \rightarrow j) = T(i \rightarrow j)A(i \rightarrow j).
+\end{equation}
+We want to derive the probabilities $A$ and $T$, such that $w_j(t_{k+1}) = w_j{t_k}$ when $t\rightarrow\infty$, starting from any initial distribution. 
+
+As we are modeling our system as a Markov chain, we require that as as $t\rightarrow\infty$ we have 
+\begin{align}
+	\sum_i w_iT(i \rightarrow j)A(i \rightarrow j) &=\sum_i w_iT(j \rightarrow i)A(j \rightarrow i)\\
+	&= 	\sum_i w_iP(j \rightarrow i)
+\end{align}
+using that $\sum_i P(j\rightarrow i) = 1$, we have 
+\begin{equation}
+	w_j = \sum_i w_iT(i\rightarrow j)A(i\rightarrow j) = \sum_i w_iP(i\rightarrow j)
+\end{equation}
+which is the standard Markov chain equation when a steady state has been reached. 
+
+\subsubsection{Detailed Balance} %1
+In general the condition that the probabilities should be equal, is normally not enough to ensure we reach the most likely state. We could end up in a cyclic solution where we go back and forth between to solutions. To counter this we will introduce detailed balance\cite{LarsOnsagerIrreversible}
+\begin{equation}
+	P(i\rightarrow j)w_i = P(j\rightarrow i)w_j.
+\end{equation}
+
+At equilibrium detailed balance gives us 
+\begin{equation}
+	\frac{P(i\rightarrow j)}{P(j\rightarrow i)} = \frac{w_j}{w_i},
+\end{equation}
+rewriting in terms of T and A we have 
+\begin{equation}\label{eq:detailed balance}
+	\frac{T(i\rightarrow j)A(i\rightarrow j)}{T(j\rightarrow i)A(j\rightarrow i)} = \frac{w_j}{w_i}.
+\end{equation}
+This condition ensures that it is our probability distribution that is reach when the system reaches equilibrium\cite{morten}.
+
+With our probability distribution given by the Boltzmann distribution \eqref{eq:boltz}, the partition function \eqref{eq:Z} is infeasible to calculate and brute force Monte Carlo calculation will not results in the microstates which are important at equilibrium. To select the contributions that are important to the equilibrium, we need to use the detailed balance which is just given by a ration of probabilities. This makes us able to never have to calculate the partition function $Z$. 
+For Boltzmann distribution the detailed balance results in 
+\begin{equation}\label{eq:boltzmann relation}
+	\frac{w_j}{w_i} = e^{-\beta \left(E_j - E_i\right)}.
+\end{equation}
+
+For the Ising model, a change in state from $i \rightarrow j$, would mean one of two things. Either a spin-flip or no change at all. This selection of states has to results in the Boltzmann distribution otherwise, our choice of microstates is wrong. Leading to us getting wrong results when sampling the system. 
+
+\subsubsection{The Metropolis Algorithm Specialized}%1
+The simplest form of the Metropolis algorithm is assuming that the transition probability $T(i\rightarrow j)$ is symmetric, implying that $T(i\rightarrow j) = T(j\rightarrow i)$. Using this we have from equation \eqref{eq:detailed balance} and equation \eqref{eq:boltzmann relation}
+\begin{equation}
+	\frac{A(i\rightarrow j)}{A(j\rightarrow i)} = e^{-\beta \left(E_j - E_i\right)}.
+\end{equation}
+
+Suppose $E_j > E_i$. Since it is only the ration that needs to obey the equality, we can make the algorithm more efficient by setting the largest of the two acceptance ratios to 1. 
+Then we have 
+\begin{equation}
+		\frac{A(i\rightarrow j)}{A(j\rightarrow i)} = e^{-\beta \left(E_j - E_i\right)} < 1,
+\end{equation}
+where we impose $A(j\rightarrow i) = 1$. When $E_j < E_i$, the energy of the system is lowered and we accept the state change regardless. The acceptance probability can be summarized as 
+\begin{equation}
+	A(i \rightarrow j) = 
+	\left\lbrace
+	\begin{split}
+		&e^{-\beta \left(E_j - E_i\right)},  && E_j - E_i > 0\\
+		&1, && else.
+	\end{split}
+	\right.
+\end{equation} 
+Or in a different way, we can write the following \texttt{if($\Delta$E < 0 or r<$e^{-\beta \left(E_j - E_i\right)}$) $\lbrace$We accept the proposed swap$\rbrace$}. This ensures that we will reach the most likely state, but allowing energy states are less likely to be accepted. Making the acceptance ratio, able to follow the principle of ergodicity. This is done by choosing a random number \texttt{r} from a uniform distribution between 0 and 1.
+
+\subsection{Monte Carlo - Metropolis Algorithm}%1
+If we combine the above principles our final algorithm for performing the Monte Carlo simulations can read as follows
 \begin{algorithm}[H]\label{algo:metropolis}
 	\SetAlgoLined
 	\caption{Monte Carlo simulation with Metropolis sampling}
@@ -308,8 +407,14 @@ For the Monte Carlo methods, \texttt{c++} has been used as a programming languag
 Another choice could have been to split the cycles into smaller chunks and have each core process a part of the total number of cycles. This is less expensive in CPU time, but in turn results in fewer samplings of the system.  
 
 For this article all results with lattice sizes larger than 20x20, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
-\section{Results}	% 0
-
+\section{Results}% 0
+\subsection{2x2 Lattice} %0
+\subsection{Equilibration} %0
+\subsection{Acceptance Ratio} %0
+\subsection{Probability Distribution} %0
+\subsection{Parallelization and Optimization} %0
+\subsection{Phase Transition} %0
+\subsection{Critical Temperature} %0
 \section{Discussion} %0
 
 \section{Conclusion} %0
