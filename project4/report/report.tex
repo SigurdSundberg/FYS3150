@@ -137,7 +137,7 @@ and the corresponding variance
 \end{equation}
 This quantity defines the susceptibility $\mathcal{X}$
 \begin{equation}\label{eq:x}
-	\mathcal{X} = \frac{1}{k_BT}\left(\langle \mathcal{M}^2 \rangle -\langle \mathcal{M}\rangle^2\right).
+	\mathcal{X} = \frac{1}{k_BT}\left(\langle \mathcal{M}^2 \rangle -\langle \abs{\mathcal{M}}\rangle^2\right).
 \end{equation}
 \subsection{Phase Transition} %1
 For our 2-dimensional Ising model, we from from a finite magnetization $\langle \mathcal{M} \rangle \neq 0$ to a paramagnetic phase with $\langle \mathcal{M} \rangle = 0$ at a critical temperature $T_C$. At this critical temperature the mean magnetization approaches zero with an infinite slope. Quantities like the heat capacity $C_v$ and the susceptibility $\mathcal{X}$ are discontinuous or diverge in the thermodynamic limit\cite{morten}, this happens as the lattice size L approaches infinity. As we can not simulate a infinite lattice, we will have to deal with approximating the critical temperature at which phase transition occurs. 
@@ -409,9 +409,59 @@ Another choice could have been to split the cycles into smaller chunks and have 
 For this article all results with lattice sizes larger than 20x20, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
 \section{Results}% 0
 \subsection{2x2 Lattice} %0
+\begin{table}[H]
+	\centering
+	\caption{Numerical values found with an ordered initial lattice of size 2x2 without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
+	\label{tab:tableordered}
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		$\log_{10}(t)$ & $\langle E \rangle / L^2$ & $\langle \abs{M}\rangle / L^2$ & $C_v/L^2$ & $\mathcal{X}/L^2$\\
+		\hline
+		3.0 & -1.988000 &0.996000 &0.095424 &0.011936 \\
+		4.0 & -1.994200 &0.998050 &0.046265 &0.005885 \\
+		5.0 & -1.996800 &0.998990 &0.025559 &0.002856 \\
+		6.0 & -1.996010 &0.998663 &0.031888 &0.004030 \\
+		\hline
+		$\infty$& -1.995982 & 0.998661 & 0.032082 & 0.004011\\
+		\hline
+	\end{tabular}
+\end{table}
+\begin{table}[H]
+	\centering
+	\caption{Numerical values found with an unordered initial lattice of size 2x2 without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
+	\label{tab:tableunordered}
+	\begin{tabular}{|c|c|c|c|c|}
+		\hline
+		$\log_{10}(t)$ & $\langle E \rangle / L^2$ & $\langle \abs{M}\rangle / L^2$ & $C_v/L^2$ & $\mathcal{X}/L^2$\\
+		\hline
+		3.0 & -1.996000 &0.998500 &0.031936 &0.004991 \\
+		4.0 & -1.993200 &0.997600 &0.054215 &0.007577 \\
+		5.0 & -1.996000 &0.998660 &0.031936 &0.004033 \\
+		6.0 & -1.996054 &0.998685 &0.031506 &0.003937 \\
+		\hline
+		$\infty$& -1.995982 & 0.998661 & 0.032082 & 0.004011\\
+		\hline
+	\end{tabular}
+\end{table}
 \subsection{Equilibration} %0
 \subsection{Acceptance Ratio} %0
 \subsection{Probability Distribution} %0
+$T = 1.0 \rightarrow -790.863652$\\
+$T = 2.4 \rightarrow -494.287104$\\
+
+\begin{table}
+	\centering
+	\caption{The computed standard deviations of the energy $\sigma_E$ for both an ordered and a random starting spin configuration. The values where computed with a burn-in period of $\tau = 10^5$ and a total simulation time for t = $10^6$.}
+	\label{tab:table1}
+	\begin{tabular}{|c|c|c|}
+		\hline
+		$T$ & $\sigma_E$(Ground state initiation) & $\sigma_E$(Random initiation)\\
+		\hline
+		1.0 & 3.055921 &3.053113\\
+		2.4 & 56.815100 &57.286746\\
+		\hline
+	\end{tabular}
+\end{table}
 \subsection{Parallelization and Optimization} %0
 \subsection{Phase Transition} %0
 \subsection{Critical Temperature} %0

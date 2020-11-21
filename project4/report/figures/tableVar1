@@ -1,0 +1,13 @@
+\begin{table}
+\centering
+\caption{}
+\label{tab:table1}
+\begin{tabular}{|c|c|c|}
+\hline
+$T$ & $\sigma_E$(Ground state initiation) & $\sigma_E$(Random initiation)\\
+\hline
+1.0 & 3.055921 &3.053113\\
+2.4 & 56.815100 &57.286746\\
+\hline
+\end{tabular}
+\end{table}

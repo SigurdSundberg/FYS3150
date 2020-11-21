@@ -1,0 +1,17 @@
+\begin{table}
+\centering
+\caption{}
+\label{tab:tableordered}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+$\log_{10}(t)$ & $\langle E \rangle / L^2$ & $\langle \abs{M}\rangle / L^2$ & $C_v/L^2$ & $\mathcal{X}/L^2$\\
+\hline
+3.0 & -1.988000 &0.996000 &0.095424 &0.011936 \\
+4.0 & -1.994200 &0.998050 &0.046265 &0.005885 \\
+5.0 & -1.996800 &0.998990 &0.025559 &0.002856 \\
+6.0 & -1.996010 &0.998663 &0.031888 &0.004030 \\
+\hline
+$\infty$& -1.995982 & 0.998661 & 0.032082 & 0.004011\\
+\hline
+\end{tabular}
+\end{table}
