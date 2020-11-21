@@ -140,15 +140,15 @@ This quantity defines the susceptibility $\mathcal{X}$
 	\mathcal{X} = \frac{1}{k_BT}\left(\langle \mathcal{M}^2 \rangle -\langle \abs{\mathcal{M}}\rangle^2\right).
 \end{equation}
 \subsection{Phase Transition} %1
-For our 2-dimensional Ising model, we from from a finite magnetization $\langle \mathcal{M} \rangle \neq 0$ to a paramagnetic phase with $\langle \mathcal{M} \rangle = 0$ at a critical temperature $T_C$. At this critical temperature the mean magnetization approaches zero with an infinite slope. Quantities like the heat capacity $C_v$ and the susceptibility $\mathcal{X}$ are discontinuous or diverge in the thermodynamic limit\cite{morten}, this happens as the lattice size L approaches infinity. As we can not simulate a infinite lattice, we will have to deal with approximating the critical temperature at which phase transition occurs. 
+For our 2-dimensional Ising model, we from from a finite magnetization $\langle \mathcal{M} \rangle \neq 0$ to a paramagnetic phase with $\langle \mathcal{M} \rangle = 0$ at a critical temperature $T_C$. At this critical temperature the mean magnetization approaches zero with an infinite slope. Quantities like the heat capacity $C_v$ and the susceptibility $\mathcal{X}$ are discontinuous or diverge in the thermodynamic limit\cite{morten}, this happens as the lattice size L approaches infinity. As we can not simulate a infinite lattice, we will have to deal with approimating the critical temperature at which phase transition occurs. 
 
-When studying a finite lattice, the variance in energy and magnetization no longer diverge or are discontinuous, however they scale as $\sim 1/\sqrt{M}$, where M is given as $M = 2^{L^2}$ microstates, for an LxL lattice. This means that we will not be able to observe a diverging behavior, but we will should be able to see as we increase the lattice size, that the peaks of $C_v$ and $\mathcal{X}$ should get sharper. 
+When studying a finite lattice, the variance in energy and magnetization no longer diverge or are discontinuous, however they scale as $\sim 1/\sqrt{M}$, where M is given as $M = 2^{L^2}$ microstates, for an $L\times L$ lattice. This means that we will not be able to observe a diverging behavior, but we will should be able to see as we increase the lattice size, that the peaks of $C_v$ and $\mathcal{X}$ should get sharper. 
 
 The critical temperature for a finite lattice follows the following relation 
 \begin{equation}\label{eq:3}
 	T_C(L) = aL^{-1/\nu} + T_C(\infty),
 \end{equation}
-where $T_C(L)$ is the critical temperature found for a finite lattice size LxL. From equation \eqref{eq:3} we will try to estimate $T_C(\infty)$ using $\nu = 1$ by studying the linear relation between the critical temperature and lattice size. 
+where $T_C(L)$ is the critical temperature found for a finite lattice size . From equation \eqref{eq:3} we will try to estimate $T_C(\infty)$ using $\nu = 1$ by studying the linear relation between the critical temperature and lattice size. 
 
 
 \subsection{Analytical Results} %1
@@ -158,7 +158,7 @@ In 1944 Lars Onsager was the first to solve the Ising model analytically for a g
 \end{equation} 
 We will use the ideas from phase transition to try to estimate $T_C$, using larger lattice size. 
 
-However first we need a benchmark for our code, where we will use a 2x2 system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:Z},\ref{eq:E}, \ref{eq:M}), and the value displayed in \autoref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
+However first we need a benchmark for our code, where we will use a $2\times 2$ system with periodic boundary conditions to calculate numerical expectation values. The analytical expectation values and the partition function can be calculated through equations (\ref{eq:Z},\ref{eq:E}, \ref{eq:M}), and the value displayed in \autoref{tab:2x2}. Likewise we can find values of $E^2$ and $M^2$. 
 
 We find that 
 \begin{align}
@@ -180,7 +180,7 @@ and we can find the susceptibility from equation \eqref{eq:x}, which can be expr
 \end{equation}
 \begin{table}
 	\vspace{10pt}
-	\caption{Display over the possible spin configurations for the 2x2 lattice. As well as listing the energy and magnetization of system.}
+	\caption{Display over the possible spin configurations for the $2\times 2$ lattice. As well as listing the energy and magnetization of system.}
 	\label{tab:2x2}
 \begin{tabular}{|c|c|c|c|c|}
 	\hline 
@@ -316,7 +316,7 @@ If we combine the above principles our final algorithm for performing the Monte 
 	}
 	\texttt{Normalize all computed values}
 \end{algorithm}
-\section{Method}
+\section{Methods} %1
 \subsection{Lattice Representation} %1
 In order for us to represent the lattice in a efficient way, we will be using a matrix representation of the lattice. This enables us to easily apply our boundary conditions as well as enables us to with ease to increase the efficiency of our code by improving upon our algorithm. Both of which we will discuss shortly. 
 \subsection{Periodic Boundary Conditions} %1
@@ -324,9 +324,9 @@ For boundary conditions we have chosen to use periodic boundary conditions, and 
 
 When applying periodic boundary conditions we need a way to index ghosts points, that is indexing points outside the scope of our lattice representation. The simple way of doing so would be to implement \texttt{if}-statements to check whether we are indexing a ghost point or not. This is however slow and hard to optimize. 
 
-A second possibility for handling the ghost points would be to expand our matrix to a (L+2)x(L+2) matrix, where we have the ability to index the ghosts points directly without the use of \texttt{if}-statements. However this runs into its own limitations, namely we would need to update the ghosts points whenever we change its corresponding value. In a 1-dimensional case this would lead to us having to update index 0 if we made a change to index n, for an array from 0 to n+1. This can be implemented using either \texttt{if}-statements or using properties of modulus operator. 
+A second possibility for handling the ghost points would be to expand our matrix to a $(L+2)\times(L+2)$ matrix, where we have the ability to index the ghosts points directly without the use of \texttt{if}-statements. However this runs into its own limitations, namely we would need to update the ghosts points whenever we change its corresponding value. In a 1-dimensional case this would lead to us having to update index 0 if we made a change to index n, for an array from 0 to n+1. This can be implemented using either \texttt{if}-statements or using properties of modulus operator. 
 
-A third method, which is the one used in this project, is using the modulus operator directly on a LxL matrix. This is done by looking at the point of interest in the matrix and compute its neighboring indexes by the following equation
+A third method, which is the one used in this project, is using the modulus operator directly on a $L\times L$ matrix. This is done by looking at the point of interest in the matrix and compute its neighboring indexes by the following equation
 \begin{equation}
 	\text{neighbor} = (\text{current} + \text{L} + \text{position}) \text{MOD} (\text{L})
 \end{equation}
@@ -406,12 +406,13 @@ For the Monte Carlo methods, \texttt{c++} has been used as a programming languag
 
 Another choice could have been to split the cycles into smaller chunks and have each core process a part of the total number of cycles. This is less expensive in CPU time, but in turn results in fewer samplings of the system.  
 
-For this article all results with lattice sizes larger than 20x20, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
+For this article all results with lattice sizes larger than $20\times20$, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
 \section{Results}% 0
-\subsection{2x2 Lattice} %0
-\begin{table}[H]
+\subsection{$2\times 2$ Lattice} %1
+\autoref{tab:tableunordered} and \autoref{tab:tableordered} presents selected expectations values compared to the analytical values found earlier for a $2\times 2$ lattice at temperature T = 1.0. The expectation values are the mean energy, mean absolute magnetization, specific heat and susceptibility. The values in \autoref{tab:tableunordered} an ordered initial configuration and \autoref{tab:tableunordered} a random initial configuration. From the tables it is clear that the values start converging towards the analytical results. 
+\begin{table}
 	\centering
-	\caption{Numerical values found with an ordered initial lattice of size 2x2 without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
+	\caption{Numerical values found with an ordered initial lattice of size $2\times 2$ without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
 	\label{tab:tableordered}
 	\begin{tabular}{|c|c|c|c|c|}
 		\hline
@@ -426,9 +427,9 @@ For this article all results with lattice sizes larger than 20x20, a parallelize
 		\hline
 	\end{tabular}
 \end{table}
-\begin{table}[H]
+\begin{table}
 	\centering
-	\caption{Numerical values found with an unordered initial lattice of size 2x2 without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
+	\caption{Numerical values found with an unordered initial lattice of size $2\times 2$ without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
 	\label{tab:tableunordered}
 	\begin{tabular}{|c|c|c|c|c|}
 		\hline
@@ -443,11 +444,48 @@ For this article all results with lattice sizes larger than 20x20, a parallelize
 		\hline
 	\end{tabular}
 \end{table}
-\subsection{Equilibration} %0
-\subsection{Acceptance Ratio} %0
-\subsection{Probability Distribution} %0
-$T = 1.0 \rightarrow -790.863652$\\
-$T = 2.4 \rightarrow -494.287104$\\
+\subsection{Equilibration} %1
+In figure \ref{fig:Energy} and figure \ref{fig:Magnetization} we see the mean energy and mean absolute magnetization as a function of Monte Carlo cycles. These calculations are done without a burn-in period and displays the system evolution from its initial state to the most likely state. For us to be able to sample the system, we need it to reach the most likely state to get the expected expectation values. 
+We see form figure \ref{fig:Energy} and figure \ref{fig:Magnetization} that we are close to the most likely state at $10^4$ cycles, and seems to be close to constant after $10^5$ number of cycles. For a total number of cycles of $10^6$, this is roughly $10\%$. And we should start sampling the system in this case after $10^5$ Monte Carlo cycles. 
+
+For both figures the data was collected after the first Monte Carlo cycles such that the figures do not include the initial configuration of the system. This is however irrelevant for the equilibration time, as $\pm 1$ cycle, does not contribute at all when we are doing $10^5$ and upwards number of cycles. 
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/Energy.png}
+	\caption{The expectation values of the mean energy as a function of Monte Carlo cycles for a $20\times20$ lattice with two different initial spin configurations and two different temperatures. The ordered state refers to an initial spin configurations where all spins are pointing up. The unordered state is a random configuration. We see that the time for the system to reach the most likely state is around $10^4$ to $10^5$ cycles.}
+	\label{fig:Energy}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/Magnetization.png}
+	\caption{The expectation values of the mean absolute magnetization as a function of Monte Carlo cycles for a $20\times20$ lattice with two different initial spin configurations and two different temperatures. The ordered state refers to an initial spin configurations where all spins are pointing up. The unordered state is a random configuration. We see that the time for the system to reach the most likely state is around $10^5$ cycles.}
+	\label{fig:Magnetization}
+\end{figure}
+\subsection{Acceptance Ratio} %1
+In figure \ref{fig:Accept} the number of accepted flips for different temperatures and initial configurations are plotted as a function of Monte Carlo cycles. Looking at $T=1.0$, we see that for the ordered initial configuration has close to a linear relation when the system starts to accept flips. For the unordered system we see that it follows a similar relation, but seems to reach equilibration a bit later. This can be read from figure \ref{fig:Energy} and figure \ref{fig:Magnetization}, which coincides with the points where the sharp edges in the lines between $10^1$ and $10^2$.
+
+For the case for $T=2.4J/k_B$ we see that the unordered initial configuration almost instantly has a linear relation between accepted flips and Monte Carlo cycles. For the ordered start, it takes around $10^2$ cycles before it reaches a linear relation. 
+
+What we can see applies regardless of initial configuration is the for a higher temperature, the system accepts more flips then for low temperatures. Which is supported by the Boltzmann distribution \eqref{eq:boltz}, where we get higher values for higher values of T.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/Accept.png}
+	\caption{Number of accepted flips as a function of Monte Carlo cycles for two different temperatures and two different initial spin configurations. The ordered state refers to an initial spin configurations where all spins are pointing up. The unordered state is a random configuration. All the lines trend to linear relations ships after around $10^5$ cycles, which is the same as equilibration time, for the systems shown in figure \ref{fig:Energy}.}
+	\label{fig:Accept}
+\end{figure}
+\subsection{Probability Distribution} %1
+Another interesting property to study is the probability distribution. In figure \ref{fig:ProbabilityDensity} we see the probability distribution for $T=1.0$ and $T=2.4$ for the system after it has reached the most likely state. The results are generated for a burn-in period of $10^5$ cycles and a total of $10^6$ samples. 
+
+For $T=1.0$ we see that most of the energies are within one region, with a mean value of $\mu = -790.863[E/J]$. For $T=2.4$ we see a larger spread of values, similar to the Gaussian distribution, the mean value in this case it $\mu = -494.287[E/J]$.
+
+In \autoref{tab:table1} the standard deviations of the energy $\sigma_E$, for both a unordered and ordered initial spin configuration.
+\begin{figure*}
+	\centering
+	\includegraphics[scale=0.7]{./figures/ProbabilityDensity.png}
+	\caption{Probability distribution of energy for temperatures $T=1.0$ and $T=2.4$, found by counting the number of appearances of an energy state. Calculations where done after most likely state has been reached.}
+	\label{fig:ProbabilityDensity}
+\end{figure*}
 
 \begin{table}
 	\centering
@@ -462,9 +500,44 @@ $T = 2.4 \rightarrow -494.287104$\\
 		\hline
 	\end{tabular}
 \end{table}
-\subsection{Parallelization and Optimization} %0
-\subsection{Phase Transition} %0
+\subsection{Parallelization and Optimization} %1
+In figure \ref{fig:TimingRuns} we can see the gain for compiler flags and parallelization using MPI. The runs where done over different lattice size with $10^5$ Monte Carlo cycles. A wide range of compiler flags where tested, with both unparallelized and parallelized code to get a full picture. We can see that the runs with no compiler flags for the parallelized code performs only slightly worse than the unparallelized code with compiler flags. 
+For the largest lattice size of $100\times 100$, the \texttt{-O3}, performs better than the rest. The parallelization runs where all done using 8 cores, of 1 GHz each, on an Intel i5 processor. 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/TimingRuns.png}
+	\caption{Timing runs, using a 8-core i5 Intel processor. Up arrows show the unparallelized runs, whilst down arrows display the parallelized runs. The data is displayed using a lograthmic scale along the y-axis to better display the difference between the runs.}
+	\label{fig:TimingRuns}
+\end{figure}
+\subsection{Phase Transition} %1
+The results displayed in figure \ref{fig:LatticeSize} where computed with varying temperature step and Monte Carlo cycles. In all cases $10\%$ of the total number of cycles where used as a burn-in period, before the system was sampled for the total number of cycles. A random initial state was used. 
+
+For the $40\times 40$ lattice, a temperature step of $0.05$ was used, for the entire range of $T \in [2.0, 2.45]$. $6\cdot 10^6$ cycles where used. 
+For the remaining lattice size a temperature step of $0.01$ has been used. Including the temperature range has been narrowed down to reduce computation time. 
+The lattice size of $60\times 60$ and $80\times 80$, where found using $8\cdot 10^6$ cycles.
+For the last size $100\times 100$, $1.6\cdot 10^7$ cycles where used. 
+
+\begin{figure*}
+	\centering
+	\includegraphics[scale=1]{./figures/LatticeSize.png}
+	\caption{The data gathered from studying of the system of increasing lattice size. The data displayed is the mean energy, mean magnetization, specific heat and the susceptibility. A distinct peak is starting to form as we are increasing the lattice size in both susceptibility and specific heat. The mean magnetization also has a more distinct trend towards being divergent.}
+	\label{fig:LatticeSize}
+\end{figure*}
+
 \subsection{Critical Temperature} %0
+We used the specific heat to approximate the critical temperature, see figure \ref{fig:InterpolationCv}, by choosing the maximum values for the interpolation for different lattice sizes, to create a set of data points that we can study. The data points seen in figure \ref{fig:ApproxTc} are used to find the linear relation between the lattice size and critical temperature. The relation from equation \eqref{eq:3}, gives us that for a lattice of size $L = \infty$, the critical temperature is $T_c = 2.2665$. 
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/InterpolationCv.png}
+	\caption{Interpolation of the specific heat, 5-dimensional spline interpolation with smoothing. Low number of grid points lead to large discrepancy between the interpolation and the data points.}
+	\label{fig:InterpolationCv}
+\end{figure}
+\begin{figure}
+	\centering
+	\includegraphics[width=0.95\linewidth]{./figures/ApproxTc.png}
+	\caption{The max values of the interpolation in figure \ref{fig:InterpolationCv} has been used as data points. Linear regression of the data points gives the equation seen in the plot.}
+	\label{fig:ApproxTc}
+\end{figure}
 \section{Discussion} %0
 
 \section{Conclusion} %0
