@@ -30,9 +30,10 @@ void MonteCarloMetropolis(int, int, int **, double, double *, double *, int);
 void read_input(int &, int &, double &, double &, double &);
 void output(int, int, double, double *);
 void output2(int, int, double, double *, int);
-void output3(int, int, double *);
+void output3(int, double);
 void outputTime(double);
-void analytical_2x2_lattice(double *, double);
+void getEnergyAndMagneticMoment(int, int **, double &, double &);
+void equil(int **, int, int, double *);
 
 int main(int argc, char const *argv[])
 {
@@ -55,7 +56,6 @@ int main(int argc, char const *argv[])
     T_initial = atof(argv[5]);
     T_final = atof(argv[6]);
     T_step = atof(argv[7]);
-    cout << filename << " " << dim << " " << MCs << " " << order << " " << T_initial << " " << T_final << " " << T_step << endl;
 
     filename += argv[2];
     cout << filename << endl;
@@ -67,8 +67,7 @@ int main(int argc, char const *argv[])
         spinMatrix[i] = new int[dim];
     }
 
-    // spinMatrix = (int **)matrix(dim, dim, sizeof(int));
-    auto start = chrono::high_resolution_clock::now();
+    // auto start = chrono::high_resolution_clock::now();
 
     ofile.open(filename, ios_base::app);
     for (double T = T_initial; T <= T_final; T += T_step)
@@ -94,11 +93,12 @@ int main(int argc, char const *argv[])
         // Perform the Metropolis algorithm.
         MonteCarloMetropolis(dim, MCs, spinMatrix, T, w, expectation, order);
     }
-    string tFilename = filename;
-    auto finish = chrono::high_resolution_clock::now();
-    double time = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
-    outputTime(time);
-    // COmment to save
+    // Use for writing timing to file, uncomment if doing timing runs
+    // string tFilename = filename;
+    // auto finish = chrono::high_resolution_clock::now();
+    // double time = chrono::duration_cast<chrono::nanoseconds>(finish - start).count() / pow(10, 9);
+    // outputTime(time);
+
     // Free memory
     for (int i = 0; i < dim; i++)
     {
@@ -106,7 +106,6 @@ int main(int argc, char const *argv[])
     }
     delete[] spinMatrix;
 
-    // free_matrix((void **)spinMatrix);
     ofile.close();
     return 0;
 }
@@ -126,7 +125,6 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
             for (int j = 0; j < dim; j++)
             {
                 spinMatrix[i][j] = 1; // initial orientation all up
-                M += (double)spinMatrix[i][j];
             }
         }
     }
@@ -146,7 +144,6 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
             {
                 r = rng(generator);
                 spinMatrix[i][j] = r <= 0.5 ? -1 : 1;
-                M += (double)spinMatrix[i][j];
             }
         }
     }
@@ -154,7 +151,6 @@ void initialize(int dim, int **spinMatrix, double &E, double &M, int initial_sta
     {
         for (int j = 0; j < dim; j++)
         {
-            E -= (double)spinMatrix[i][j] * (spinMatrix[i][periodic(j, dim, -1)] + spinMatrix[periodic(i, dim, -1)][j]);
         }
     }
 }
@@ -168,7 +164,8 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
     double E = 0.;
     double M = 0.;
     initialize(dim, spinMatrix, E, M, order); // Last arg is initial state: 0 = ordered | 1 = unordered
-
+    equil(spinMatrix, MCs, dim, w);
+    getEnergyAndMagneticMoment(dim, spinMatrix, E, M);
     random_device rd;
     mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
     uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
@@ -199,7 +196,6 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
                 accept++;
             }
         }
-        // cout << localValues[4] << endl;
         // Update the expectation values
         localValues[0] += (double)E;
         localValues[1] += (double)E * (double)E;
@@ -208,14 +204,10 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double *
         localValues[4] += (double)fabs(M);
         // output2(dim, cycle + 1, T, localValues, accept); // For number of accepted states and finding equilibrium
 
-        // if (/* condition */)
-        // {
-        //     /* code */
-        //     // output3(dim, cycle, localValues)
-        // }
+        // output3(dim, E); // For the probability calculations
     }
     // Write the results from the montecarlo at T to file
-    // output(dim, MCs, T, localValues);
+    output(dim, MCs, T, localValues);
 }
 
 /* 
@@ -242,6 +234,17 @@ void read_input(int &n_spins, int &mcs, double &initial_temp,
     cin >> temp_step;
 } // end of function read_input
 
+void getEnergyAndMagneticMoment(int dim, int **spinMatrix, double &E, double &M)
+{
+    for (int i = 0; i < dim; i++)
+    {
+        for (int j = 0; j < dim; j++)
+        {
+            M += (double)spinMatrix[i][j];
+            E -= (double)spinMatrix[i][j] * (spinMatrix[i][periodic(j, dim, -1)] + spinMatrix[periodic(i, dim, -1)][j]);
+        }
+    }
+}
 void output(int dim, int MCs, double T, double *average)
 {
     double LL = dim * dim; // Dimension of the matrix
@@ -286,51 +289,41 @@ void output2(int dim, int MCs, double T, double *average, int accept)
     ofile << setw(15) << setprecision(8) << E / LL;
     ofile << setw(15) << setprecision(8) << absM / LL << endl;
 }
-void output3(int dim, int MCs, double *average)
+void output3(int dim, double E)
 {
-    double LL = dim * dim;             // Dimension of the matrix
-    double norm = 1.0 / ((double)MCs); // Total number of cycles
-
-    double E = average[0] * norm;
+    double LL = dim * dim; // Dimension of the matrix
 
     ofile << setiosflags(ios::showpoint | ios::uppercase);
-    ofile << setw(15) << setprecision(8) << E / LL << endl;
+    ofile << setw(15) << setprecision(8) << E << endl;
 }
 void outputTime(double time)
 {
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(15) << setprecision(8) << time << endl;
 }
-/*
-    * This part of the project can be handeled in python instead. 
-    * It will be an easier implementation for it
-    * Delete this at some point
-*/
-void analytical_2x2_lattice(double *A_values, double T)
+
+void equil(int **spinMatrix, int MCs, int dim, double *w)
 {
-    // Interesting values
-    double Z, E, M, EE, MM, absM, absMM, beta;
+    random_device rd;
+    mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
+    uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
 
-    int n_spins = 4; // 2x2 we have 4 spins.
+    int totalSpins = dim * dim;
+    for (int cycle = 0; cycle < MCs / 10; cycle++) // We want to discard 10% of the spins. Since MC is greedy, we will still use the full number of cycles for the rest
+    {
+        for (int i = 0; i < totalSpins; i++)
+        {
+            int ri = (int)(RNG(generator) * (double)dim);
+            int rj = (int)(RNG(generator) * (double)dim);
 
-    beta = 1 / T; // k_B = 1
+            int nearestNeighbors = (spinMatrix[ri][periodic(rj, dim, -1)] + spinMatrix[ri][periodic(rj, dim, 1)] + spinMatrix[periodic(ri, dim, -1)][rj] + spinMatrix[periodic(ri, dim, 1)][rj]);
+            int dE = 2 * spinMatrix[ri][rj] * nearestNeighbors;
 
-    // Analytical expectation values
-    Z = 4 * (3 + cosh(8 * beta));
-    E = -32 * sinh(8 * beta) / Z;
-    EE = 256 * cosh(8 * beta) / Z;
-    M = 0;
-    MM = 32 * (exp(8 * beta) + 1) * beta / Z;
-    absM = 8 * (exp(8 * beta) + 2) / Z;
-    absMM = (32 * exp(8 * beta) + 4) / Z;
-
-    // Stores the analytical values for a spesific T
-    A_values[0] = E / n_spins;
-    A_values[1] = EE / n_spins;
-    A_values[2] = absM / n_spins;
-    A_values[3] = absMM / n_spins;
-    A_values[4] = M / n_spins;
-    A_values[5] = MM / n_spins;
-    A_values[6] = (A_values[1] - A_values[0] * A_values[0]) * beta * beta; //Heat Capacity
-    A_values[7] = (A_values[5]) * beta;                                    //Magnetic susceptibility
+            double r = RNG(generator);
+            if (r <= w[dE + 8] || dE < 0)
+            {
+                spinMatrix[ri][rj] *= -1;
+            }
+        }
+    }
 }

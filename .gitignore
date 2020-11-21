@@ -13,7 +13,7 @@ TODO.txt
 test.txt
 test*
 hello*
-dump/*
+/dump/*
 
 
 # Projects added to ignore after handed in

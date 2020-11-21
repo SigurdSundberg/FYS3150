@@ -139,17 +139,17 @@ int main(int argc, char *argv[])
         }
 
         // Write the results to file
-        // if (currentProcessor == 0)
-        // {
-        //     output(dim, MCs * numberOfProcessors, T, totalValues);
-        // }
+        if (currentProcessor == 0)
+        {
+            output(dim, MCs * numberOfProcessors, T, totalValues);
+        }
     }
     timeFinal = MPI_Wtime();
     timeTotal = timeFinal - timeStart;
     if (currentProcessor == 0)
     {
         cout << "Time: --- " << timeTotal << " seconds --- on " << numberOfProcessors << " processors." << endl;
-        outputTime(timeTotal);
+        // outputTime(timeTotal);
     }
     if (currentProcessor == 0)
     {
