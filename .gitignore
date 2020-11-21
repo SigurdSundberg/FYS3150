@@ -11,11 +11,15 @@ Makefile
 project0
 TODO.txt 
 test.txt
+test*
+hello*
+dump/*
 
 
 # Projects added to ignore after handed in
 /project1/*
 /project2/*
+/project3/*
 
 #Python files not to be included
 run.py
@@ -41,6 +45,7 @@ table.txt
 report.out
 
 # C++ files
+*.exe
 *.x
 *.o
 test.cpp

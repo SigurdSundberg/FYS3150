@@ -266,7 +266,7 @@ if problem == "qd1e":
         prec = 10  # precision of numbers, currently 0.x, increase if you want to use i.e. 0.00x
         rho_names = []
         for i in range(len(rho_max)):
-            rho_names.append(int(round(rho_max[i]*10)))
+            rho_names.append(int(round(rho_max[i] * 10)))
 
         print(
             "For what values of n do you want to iterate for? Default: [100, 200, 300, 400]")
