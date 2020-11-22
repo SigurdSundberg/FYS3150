@@ -83,8 +83,12 @@ aps,
 
 \maketitle 
 
-\section{Introduction} %0
+\section{Introduction} %1
+The Ising model and its adaptions can be used to model a wide range of binary systems, from two party elections to magnetic behavior of magnets. It is normally used to describe the magnetic properties of ferromagnetic materials. It is a simplified classical model, where each spin is only allowed to interact with its nearest neighbors in a fixed lattice. Even though the Ising model is simple, many important physical quantities can be derived from it. Studying it numerically however has its problems. Even thought the system is binary, the number of different configurations of the lattice scales exponentially with the dimensionality of the lattice, this limits what properties we are able to calculate, for instance the probability distribution function is impossible to calculate. To solve this problem, Monte Carlo based Metropolis algorithm will be used. The Metropolis algorithm is a sampling algorithm that can be used to sample the probability distribution function of complicated systems. This enables us to sample the system and approximate with relative ease, accurately and being able to find the physical properties observed. We are able to test our results against the analytical results found by Lars Onsagr\cite{LarsOnsager}. 
 
+In this article we will study a $2\times 2$ lattice, to bench mark our code against analytical results. Before moving onto  lattice size of $20\times 20$ and studying the equilibration time, probability distribution and acceptance ratio of spin-flips. Followed by studying how we can improve the run time of the Monte Carlo simulations, so we can tackle larger systems. For the larger systems up to $100 \times 100$ we will try to deduce the physical properties we expect the system to follow, such as phase transition. From this data we will also calculate the critical temperature by assuming a power law around the critical temperature, based on the data from the phase transition study. 
+
+We will first cover the theory used, before tackling the algorithm and methods used to through the article to gather our results. Following we will present our results and discuss the findings and their implications, before concluding our work. 
 \section{Theory} %1
 The Ising model is a binary system, where the objects at each lattice site can take one of two values, either spin up or spin down. 
 The energy of the Ising model, with no external magnetic field can be expressed as 
@@ -407,9 +411,9 @@ For the Monte Carlo methods, \texttt{c++} has been used as a programming languag
 Another choice could have been to split the cycles into smaller chunks and have each core process a part of the total number of cycles. This is less expensive in CPU time, but in turn results in fewer samplings of the system.  
 
 For this article all results with lattice sizes larger than $20\times20$, a parallelized version of algorithm \ref{algo:metropolis} has been used, and ran on a computer with 8 1GHz cores. 
-\section{Results}% 0
+\section{Results}% 1
 \subsection{$2\times 2$ Lattice} %1
-\autoref{tab:tableunordered} and \autoref{tab:tableordered} presents selected expectations values compared to the analytical values found earlier for a $2\times 2$ lattice at temperature T = 1.0. The expectation values are the mean energy, mean absolute magnetization, specific heat and susceptibility. The values in \autoref{tab:tableunordered} an ordered initial configuration and \autoref{tab:tableunordered} a random initial configuration. From the tables it is clear that the values start converging towards the analytical results. 
+\autoref{tab:tableunordered} and \autoref{tab:tableordered} presents selected expectations values compared to the analytical values found earlier for a $2\times 2$ lattice at \texttt{}temperature T = 1.0. The expectation values are the mean energy, mean absolute magnetization, specific heat and susceptibility. The values in \autoref{tab:tableunordered} an ordered initial configuration and \autoref{tab:tableunordered} a random initial configuration. From the tables it is clear that the values start converging towards the analytical results. 
 \begin{table}
 	\centering
 	\caption{Numerical values found with an ordered initial lattice of size $2\times 2$ without burn in period. $\log_{10}(t)$ references the number of Monte Carlo cycles used, where $t$ is the number of cycles. $ t = \infty$ refers to the analytical solutions found earlier.}
@@ -524,7 +528,7 @@ For the last size $100\times 100$, $1.6\cdot 10^7$ cycles where used.
 	\label{fig:LatticeSize}
 \end{figure*}
 
-\subsection{Critical Temperature} %0
+\subsection{Critical Temperature} %1
 We used the specific heat to approximate the critical temperature, see figure \ref{fig:InterpolationCv}, by choosing the maximum values for the interpolation for different lattice sizes, to create a set of data points that we can study. The data points seen in figure \ref{fig:ApproxTc} are used to find the linear relation between the lattice size and critical temperature. The relation from equation \eqref{eq:3}, gives us that for a lattice of size $L = \infty$, the critical temperature is $T_c = 2.2665$. 
 \begin{figure}
 	\centering
@@ -539,9 +543,72 @@ We used the specific heat to approximate the critical temperature, see figure \r
 	\label{fig:ApproxTc}
 \end{figure}
 \section{Discussion} %0
+\subsection{Benchmark Test $2\times 2$ Lattice} %1
+From \autoref{tab:tableordered} and \autoref{tab:tableunordered} we see that as the number of Monte Carlo cycles increase, the values converge towards the expectation values. This goes for both an unordered spin configuration and an ordered spin configuration. For a $2\times 2$ lattice, this has little impact on the values, as the configurations are fairly close to one another. 
+
+We can conclude that our implementation of the Monte Carlo simulation, using Metropolis algorithm for deciding spins is correctly implemented. And we can start expanding to larger lattice sizes.
+
+\subsection{Equilibration and Most Likely State} %1
+For the $2\times 2$ lattice, we did not care about the system before we start to sample it. However this is essential when we want to sample a system using Monte Carlo methods. If we do not let the system reach its most likely state before we would need to perform a lot more Monte Carlo samples to reach our expectation values. To try to find the equilibration time, we look at it graphically as seen in figures \ref{fig:Energy} and \ref{fig:Magnetization}, from this we saw that for a total number of $10^6$ Monte Carlo cycles and different initial spin configurations, we need around $10^5$ cycles before we reach equilibrium. For $T=1.0$, this is more cycles than strictly necessary, however implementing a dynamic burn-in period is not a good choice. It would mean that we need to know details about the initial configuration and the current lattice size, which would be inefficient compared to having a general period for which one equilibrates the system. 
+
+For $T=2.4$ we see that we would need around $10^5$ cycles before reaching equilibrium, which is $10\%$ of the total cycles used. This coincides with the general consensus of ignoring the first $10-15\%$ of the total cycles before starting ot sample the system. For this sampling, we are only studying the temperatures individually, so we are not concerned with how equilibration will affect the system when we let the system evolve. 
+
+From figure \ref{fig:LatticeSize}, we see that the difference in sampled expectation values is large. When gathered the data we only equilibrated the system for the initial temperature. For the rest we assumed that the configuration of the lattice would be close to the most likely state for the next temperature. For our chosen temperature steps of $\Delta T = 0.01$ for the large lattice size, we still see that the difference in especially susceptibility and specific heat are large. This is to be expected due to the nature of the system we are studying, but looking at magnetization we see that around the critical temperature, the difference in the magnetization of the system is large. Whilst for the energy the values are all, seemingly evenly spaced. 
+
+Based on this we can conclude and our belief in large numbers, we can conclude that using an initial burn-in period of $10\%$ of the total number of cycles, and reusing our lattice when increasing temperature is a good approach for reducing the total computational time. Also whilst data have large differences between different expectation values at different temperatures, from our trials for the $2\times 2$ lattice, we saw that as we collected more and more samples without a burn-in period, we still achieved close to the expectation values. So our choice of system evolution and burn-in period seems to be a valid choice for getting correct data.
+
+For improvement and even smaller temperature step would be a better choice, however due to limitations in computational time, this was not achievable. This would have made the method even better and we could be sure that the system is in its most likely state just a few cycles into the new temperature. 
+
+\subsection{Acceptance Ratio} %1
+For the same $20\times 20$ system we used to approximate an equilibration time we looked at how many spin-flips where accepted by our system as a function of Monte Carlo cycles, this can be seen in figure \ref{fig:Accept}. 
+
+From this we can see that for both temperatures the acceptance ration converges to a linear relation between accepts and Monte Carlo cycles. For both systems this happens somewhere around where they reach their most likely state. However for $T=2.4$ we see that both initial configurations that they reach a linear relation long before the proposed equilibration time of $10^5$ cycles.
+
+This linear relationship for $T=2.4$, happens around $10^3$ cycles which is the same point where the systems are hovering around their most likely state. From this we can deduce that as the systems reach their most likely state, they will start to accept an equal amount of spin-flips each cycle. We can from the combination of the acceptance ration and studying how the mean magnetization and mean energy changes as a function of Monte Carlo cycles, a burn-in period, as stated earlier of around $10^5$. Where we could even start sampling both systems after $10^3$ cycles. This second fact supports our choice of system evolution, as we would only need around $10^3$ cycles to reach the most likely state from one system to another, or even less. 
+
+Looking at how the acceptance ratio differs between $T=1.0$ and $T=2.4$, we see that for a higher temperature, the system accepts more spin-flips. From how our acceptance probability is defined, we know that the system accepts all flips to a lower energy, which for a higher temperature this range would be higher. If the max energy state is $E_9$ and that is the most likely state for our system, then all energy until $E_0$ would be accepted instantly. Secondly, for our system to not always reach the state of lowest energy, but its most likely state, we have a second condition for accepting the proposed flip. This is based on the Boltzmann distribution and change of energy, and for large temperatures the Boltzmann distribution returns larger values for the energy. As we are comparing a random number in the range $[0,1]$,  we would have a larger range of these numbers accepted when the temperature is higher. 
+So the data we find is concurrent with our expectations of the system behavior. 
+
+\subsection{Probability Distribution} %1
+The probabilities seen in figure \ref{fig:ProbabilityDensity} were computed after steady state was reached, so the initial spin configuration should be irrelevant for the data. From \autoref{tab:table1} we see a small discrepancy in $\sigma_E$, which is attributed to a small sample size. However this is so small, it can come down to the behavior of random numbers. 
+
+For the case of $T=1.0$ case, the probability of being in the ground state account for the majority of cases. Which is supported by the standard deviation, being small. Here the standard deviation is considered a quantitative measurement of the spread in the data set. Looking at the mean value for this case, we see it is at $-790E/J$ which is close to the ground state, with all spins pointing in one direction. This specific configuration should have a mean energy of $-800E/J$. 
+
+As discussed previously the number of accessible energies increases with temperature which is reflected in the $T=2.4$ case. The probability distribution resembles that of a Gaussian distribution, with a mean value of $-494E/J$. We also see a large standard deviation, which is is concurrent with the large range of accessible energies. 
+\subsection{Optimization} %1
+The Monte Carlo methods are greedy, and the more samples you can get the better the method becomes for approximating different expectation values. This leads to great benefits from writing code which can be parallelized and vectorized. This will reduce the computational time needed for a large sample set. For our calculations we chose to have each core to run its own Monte Carlo simulation, meaning that for a 8 core system, we are able to perform 8 times the Monte Carlo cycles in the same time period. This is a great method for sampling the system many, many times at the cost of over all computational time. 
+
+The other choice may have been to split up the total Monte Carlo cycles into smaller chunks and having each core run a small part of the total cycles. Or a combination of the two. 
+
+From figure \ref{fig:TimingRuns} we see that the difference between a parallelized run with no flags and a unparallelized run with flags are close. This is done for 8 core runs, over a range of time values. Due to some unfortunate events, the runs using the parallelized code had a burn-in period enables, meaning the code did $10\%$ more cycles when running the timing runs. Regardless we see from the data how effective parallelization is on reducing run time, and would keep improving as we are able to add more and more core to the calculations by using larger computers and more processors. 
+
+In turn we also see a large speedup using compiler flags where the $-O3$ flags shows the largest reduction in computational time. The flags $-O2$ and $-Ofast$ are close in performance, so any of the three can be used. 
+
+\subsection{Phase Transition} %1
+As our system increases in lattice size we expect the susceptibility and specific heat to diverge. For the mean magnetization we expect the system it should converge to with an infinite slope. The data from the study of phase transition can be seen in figure \ref{fig:LatticeSize}.
+
+For the mean magnetization we see tendencies of this, as the slope gets gradually closer to the analytical critical temperature found by Lars Onsager, before flattening out. This supports our expected behavior of the mean magnetization. 
+
+Regarding both the susceptibility and specific heat we are expecting to see increasing peaks getting closer to the critical temperature from above. This behavior is represented in figure \ref{fig:LatticeSize}, where the peaks move to the left as expected. We also see increasing peaks, which gets a sharper edge. 
+
+What would have been preferred would be a smaller temperature step, leading to more grid points and a clearer representation of behavior. This was limited by the computational time needed for the implemented methods of parallelization and the limit in available computational time. 
+\subsection{Critical Temperature} %1
+Lastly we looked at approximating the critical temperature found by Lars Onsager, using the linear relation between lattice size and critical temperature. 
+The method used to do this, is studying the specific heat and using 5-dimensional spline method to and extracting the maximum values of the interpolation, see figure \ref{fig:InterpolationCv}. These maximas are used as the set of data points to approximate the linear relation in equation \eqref{eq:3}, the result of this can be seen in figure \ref{fig:ApproxTc}. 
+
+From this can extract that the critical temperature at $L=\infty$ is $T_c = 2.2665$. This is lower than the critical temperature found by Lars Onsager. Important fact about our method for finding the critical temperature, is that we are using a double interpolation, and in computing our estimate of the critical temperature we do not account for the error in the spline interpolation. Our estimate of the critical temperature in the thermodynamic limit, $L=\infty$, can only be taken as preliminary. Our results only confirms that there exists a phase transition in the thermodynamic limit. 
+
+The results could have been found by using both the specific heat and the susceptibility, in addition to having more data points to interpolate. This would lead to a better estimate of the interpolation curves with a smaller deviation, our data set suffers from a lack of mesh points and a large deviation between the interpolation and the found expectation values. 
 
 \section{Conclusion} %0
+In this article we have studied the 2-dimensional Ising model with the purpose of confirming physical properties of ferromagnetic materials, with the use of Monte Carlo methods with Metropolis sampling. 
+We started off by studying a $2\times 2$ lattice, before expanding and improving our code to be able to studying large lattice size with ease. A lattice size of around $10^6$ was required to get close to the analytical results for the $2\times 2$ lattice. From a $20\times 20$ lattice we looked at how the equilibration time behaves for different temperatures and how this can be chosen. We found that a burn-in period of around $10^5$ cycles or $10\%$ of the total cycles, this coincides with the acceptance ratio we found. 
+Further we studied the probability distribution, this is numerically impossible to calculate for larger lattice sizes, but by sampling the system after it has reached its most likely state, we can get a good idea of how it looks. By taking enough samples we can find a very good approximation of the function, as the accuracy of Monte Carlo simulations is dependent directly on the number of samples. 
 
+To be able to study larger systems, we needed to improve our code base to be able to handle the lattice sizes. This was done by parallelization and compiler flags which showed a significant reduction in run time, in both cases. So a combination of the two was utilized to satisfy the greedy Monte Carlo simulations. 
+With this optimization we looked to expand our lattice, to study phase transition, this is an expected physical property of the Ising model. As we expanded our lattice we found that the system behaves as expected and we can draw conclusion that it is converging towards the physical system we are trying to replicate. 
+
+The last property we looked at is the critical temperature found by Lars Onsager\cite{LarsOnsager} to be $T_c = 2.269...$, in 1944. For our simulations we found by interpolation that the critical temperature is $\tilde{T}_c = 2.266$, which can only be taken as a preliminary result as our approximation is based on a double interpolation, with no regards to the error of either interpolation. 
 \bibliography{bib_proj4}
 \bibliographystyle{plain}
 
