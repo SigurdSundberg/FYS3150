@@ -15,3 +15,10 @@ The are run in the following way
 `./main [filename] [dim] [Monte Carlo cycles] [Initial configuration(0/1)] [t_initial] [t_final] [t_step]`.
 For the parallelized version it is
 `mpirun -np [number of processors] ./paraIsing [filename] [dim] [Monte Carlo cycles] [Initial configuration(0/1)] [t_initial] [t_final] [t_step]`.
+
+No automation for running the code and producing the plots has been implemented, as it would only clutter the source code without a different implementation.
+
+Regarding the inclusion of unit tests in the Monte Carlo simulation. The only tests which we have essentially done is comparing our implementation of the algorithm to a fixed lattice for which we know the analytical values. Another test which could have been implemented is checking the co-variance of the MersenneTwister. However this is a well tested RNG which this would not be ideal. If we used a self implemented RNG, this test could be exellent. 
+
+## Report
+In here the Latex file and the pdf for the report are included.

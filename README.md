@@ -12,3 +12,6 @@ This project is on numerical methods for finding eigenvalues and eigenvectors. T
 
 ### Project 3 
 This project is on modelling the solar system. This is done through the use of solving ordinary differential equations by using the Euler and Velocity Verlet methods for finding solutions to ODE. In addition this project involves Object Orientation(OO) and introduces the concept of **write once, run many times**. 
+
+### Project 4
+This project is on the study of the Ising model, through the use of Monte Carlo simulations with Metropolis sampling. We study how ferromagnetic materials behave at a critical temperature found by Lars Onsager, through studying a 2-dimensional lattice, using the Boltzmann distribution.
