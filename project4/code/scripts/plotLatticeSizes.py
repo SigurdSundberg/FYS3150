@@ -4,14 +4,25 @@ import sys
 from scipy.interpolate import UnivariateSpline
 from scipy.optimize import curve_fit
 
+""" 
+This file is meant to read input data from the cpp function output created by the paraising program
+Define a filename of the relative path to the data file. It has to be on the format of 
+    >>> filename = [Relative path][filename][dim]
+for it to be read by the program. 
+It expects a total of 4 files, with 
+    >>> dim = ["40", "60", "80", "100"]
+"""
+# *******************************************
+# Only edit the variable filename
+filename = "../cpp/data/Lattice/lattice"
+# *******************************************
+
 plt.style.use("bmh")
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "DejaVu Sans",
     "font.sans-serif": ["Helvetica"]})
 
-# filename = argv[1]
-filename = "../cpp/data/Lattice/lattice"
 latticeSize = ["40", "60", "80", "100"]
 
 

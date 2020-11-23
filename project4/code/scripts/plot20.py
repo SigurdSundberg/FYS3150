@@ -1,14 +1,30 @@
-# Plotting for number of accepted states for the 20x20 lattice
-# For different values of T
-# Also plotting of the energy and mean magnetization against time
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+""" 
+This file is meant to read input data from the cpp function output 2
+Define a filename of the relative path to the data file. It has to be on the format of 
+    >>> filename = [Relative path][filename]_[init config]_[t_initial][dim]
+for it to be read by the program. 
+It expects a total of 4 files, with 
+    >>> t_initial = [1, 2.4]
+    >>> order = [0,1]
 
+"""
+# *******************************************
+# Only edit this to the relative path of the file
+filename = "../cpp/data/20x20/LatticeEquil_"
+
+# *******************************************
+#
+#
+#
+#
 plt.style.use("bmh")
 plt.rcParams.update({
     "text.usetex": True,
     "font.family": "DejaVu Sans",
     "font.sans-serif": ["Helvetica"]})
+
 
 orderList = ["0", "1"]
 tempList = ["1", "2.4"]
@@ -29,9 +45,9 @@ for tInitial in tempList:
         a = []
         m = []
         e = []
-        filename = "../cpp/data/20x20/LatticeEquil_"
-        filename += order + "_" + tInitial + "_20"
-        with open(filename, 'r') as f:
+        fileout = filename
+        fileout += order + "_" + tInitial + "_20"
+        with open(fileout, 'r') as f:
             for line in f:
                 line = line.split()
                 MCs.append(float(line[1]))

@@ -2,6 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
+""" 
+This file is meant to read input data from the cpp function output 3
+Define a filename of the relative path to the data file. It has to be on the format of 
+    >>> filename = [Relative path][filename][runs][dim]
+for it to be read by the program. 
+It expects a total of 2 files, with 
+    >>> runs = ["1","2"]
+    >>> dim = "20"
+"""
+# *******************************************
+# Only edit the variable filename
+filename = "../cpp/data/probability/prob"
+# *******************************************
+
 plt.style.use("bmh")
 plt.rcParams.update({
     "text.usetex": True,
@@ -9,7 +23,6 @@ plt.rcParams.update({
     "font.sans-serif": ["Helvetica"]}
 )
 
-filename = "../cpp/data/probability/prob"
 dim = "20"
 runs = ["1", "2"]
 

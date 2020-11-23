@@ -2,6 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 
+""" 
+This file is meant to read input data from the cpp function outputTime
+The filename has to be on the following format
+    >>> filename = [relative path][filename]["Normal"/"Para"]_[compilerflag]_[dim]
+with 
+    >>> compilerflag = ["", "-O2", "-O3", "-Ofast"]
+    >>> dim = [20, 40, 60, 80, 100]
+"""
+# *******************************************
+# Only edit the variable filename
+filename = "../cpp/data/time/Timing"
+# *******************************************
+
 plt.style.use("bmh")
 plt.rcParams.update({
     "text.usetex": True,
@@ -9,7 +22,7 @@ plt.rcParams.update({
     "font.sans-serif": ["Helvetica"]}
 )
 
-path = "../cpp/data/time/Timing"
+
 program = ["Normal", "Para"]
 compilerFlags = ["", "-O2", "-O3", "-Ofast"]
 dim = [20, 40, 60, 80, 100]

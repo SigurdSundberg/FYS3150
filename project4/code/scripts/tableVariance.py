@@ -1,7 +1,19 @@
 from math import cosh, sinh, exp
 import numpy as np
-T = 1
+
+
+""" 
+This file is meant to read input data from the cpp function output
+The filename has to be on the following format
+    >>> filename = [relative path][filename]
+with expects two files, examples seen below.
+"""
+# *******************************************
+# Only edit the variable filename
 filenames = ["../cpp/data/probability/var120", "../cpp/data/probability/var220"]
+# *******************************************
+
+T = 1
 
 
 def readFile(filename):
