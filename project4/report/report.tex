@@ -31,7 +31,8 @@ aps,
 \usepackage[]{subcaption}
 \usepackage[ruled,vlined]{algorithm2e}
 \usepackage{amssymb, amsmath}
-
+\usepackage{caption}
+\captionsetup{justification=raggedright,singlelinecheck=false}
 
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -77,8 +78,8 @@ aps,
 
 \date{\today}
 
-\begin{abstract}%[0]
-
+\begin{abstract}%1
+In this article we have studied the 2-dimensional Ising model to study physical properties of ferromagnetic materials. We performed Monte Carlo simulation, with Metropolis sampling to with finite lattice sizes to reproduce the observed behavior of such materials. Starting at a small $2\times 2$ lattice to confirm the analytical results found by Lars Onsager\cite{LarsOnsager} in 1944, to expanding the code base and lattice size. Through this we studied the probability distribution function, equilibration time and acceptance ration. Finding that for a lattice of $20\times 20$, around $10^5$ Monte Carlo cycles are needed to reach the most likely state. Whilst the probability distribution function behaves as expected when we increase the temperature, allowing a large range of energies to be accessible. This is supported by the computed variance for the two temperatures studied, with the large of the two having a significantly larger variance. Lastly studied the phase transition and the critical temperature of the system, we gradually increased the lattice size with the use of parallelized and optimized code, achieve a significant speedup. From this we estimated the critical temperature found by Lars Onsager in the thermodynamic limit $T_c = 2.2692J/k_B$, which we found to be $T_c = 2.266J/k_B$ compared to the analytical value of . which can only be taken as a preliminary result as we have not account for the error in the interpolation used to achieve this value. 
 \end{abstract}
 
 \maketitle 

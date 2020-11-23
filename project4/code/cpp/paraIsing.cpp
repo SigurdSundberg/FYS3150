@@ -68,8 +68,6 @@ int main(int argc, char *argv[])
     {
         string outputFile = filename;
         outputFile += to_string(dim);
-        // outputFile += "_";
-        // outputFile += to_string(MCs);
         cout << outputFile << endl;
         ofile.open(outputFile, ios_base::app);
         ofile << MCs * numberOfProcessors << endl;
@@ -103,7 +101,7 @@ int main(int argc, char *argv[])
             w[dE + 8] = 0;
         }
         for (int dE = -8; dE <= 8; dE += 4)
-        { // The energy for the current temperature
+        {
             w[dE + 8] = exp(-dE / ((double)T));
         }
 
@@ -121,7 +119,6 @@ int main(int argc, char *argv[])
             Equilibrate(dim, MCs, spinMatrix, w);
         }
         // Find E and M for the current configuration of the spinmatrix.
-        // DO NOT KNOW IF THIS IS TOTALLY NEEDED, OR IF I CAN REUSE
         getEnergyAndMagneticMoment(dim, spinMatrix, E, M);
 
         // Perform the Metropolis algorithm.
@@ -166,17 +163,15 @@ int main(int argc, char *argv[])
     MPI_Finalize();
     return 0;
 }
-
+/*
+    * Initializes the spin Matrix only
+*/
 void initialize(int dim, int **spinMatrix, int initial_state)
-{ // This should be working
+{
 
     double r;
-    /*
-    Setup the initial state where we have all spins in the same direction
-    */
     if (initial_state == 0)
     {
-        // Setup spin matrix and initial magnetization
         for (int i = 0; i < dim; i++)
         {
             for (int j = 0; j < dim; j++)
@@ -185,9 +180,6 @@ void initialize(int dim, int **spinMatrix, int initial_state)
             }
         }
     }
-    /*
-    Setup the initial state where we have unordered spins
-    */
     if (initial_state == 1)
     {
         mt19937_64 generator(clock());
@@ -205,6 +197,10 @@ void initialize(int dim, int **spinMatrix, int initial_state)
         }
     }
 }
+/*
+    * Finds the energy and magnetization of the lattice.
+    * This is used instead of re initiallizing the matrix each time
+*/
 void getEnergyAndMagneticMoment(int dim, int **spinMatrix, double &E, double &M)
 {
     for (int i = 0; i < dim; i++)
@@ -228,11 +224,10 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double E
     mt19937_64 generator(rd());                  // Setups the random number used to seed the RNG
     uniform_real_distribution<double> RNG(0, 1); // Uniform distrubution for x in [0,1]
 
-    // int accept = 0;
+    int accept = 0;
     int totalSpins = dim * dim;
     for (int cycle = 0; cycle < MCs; cycle++)
     {
-        // Shooting the lattice
         for (int i = 0; i < totalSpins; i++)
         {
             // Choose a random index
@@ -251,7 +246,7 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double E
                 spinMatrix[ri][rj] *= -1;
                 M += (double)2 * spinMatrix[ri][rj];
                 E += (double)dE;
-                // accept++;
+                accept++;
             }
         }
         // Update the expectation values
@@ -262,7 +257,9 @@ void MonteCarloMetropolis(int dim, int MCs, int **spinMatrix, double T, double E
         localValues[4] += (double)fabs(M);
     }
 }
-
+/*
+    * A selfcontained metropolis algorithm, which is only used for the initial equilibration of the lattice
+*/
 void Equilibrate(int dim, int MCs, int **spinMatrix, double *w)
 {
     random_device rd;
@@ -288,7 +285,9 @@ void Equilibrate(int dim, int MCs, int **spinMatrix, double *w)
         }
     }
 }
-
+/*
+    * Output for the expecation values
+*/
 void output(int dim, int MCs, double T, double *average)
 {
     double LL = dim * dim; // Dimension of the matrix
@@ -302,7 +301,6 @@ void output(int dim, int MCs, double T, double *average)
     double absM = average[4] * norm;
     double Evariance = (EE - (E * E)) / LL;
     double Mvariance = (MM - (absM * absM)) / LL;
-    // cout << E << " " << EE << " " << M << " " << MM << " " << Evariance << " " << Mvariance << endl;
 
     ofile << setiosflags(ios::showpoint | ios::uppercase);
     ofile << setw(15) << setprecision(8) << T;
@@ -314,6 +312,9 @@ void output(int dim, int MCs, double T, double *average)
     ofile << setw(15) << setprecision(8) << Mvariance / T;
     ofile << setw(15) << setprecision(8) << absM / LL << endl;
 }
+/* 
+    * Output for time 
+*/
 void outputTime(double time)
 {
     ofile << setiosflags(ios::showpoint | ios::uppercase);
