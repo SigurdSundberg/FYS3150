@@ -10,7 +10,9 @@ Processor : Intel Core i5-1035G1 Processor 6MB @ 1.00GHz x8 <br />
 Memory    : 8.0GB DDR4-3200 DDR4 Soldered 3200MHz <br />
 Graphics  : Mesa Intel® UHD Graphics (ICL GT1) <br />
 
-Subfolder `cpp` includes a makefile for compiling the programs, in addition to the C++ code used for the calculations. The folder `scripts` includes the python scripts used to create the plots.
+Subfolder `cpp` includes a makefile for compiling the programs, in addition to the C++ code used for the calculations. The folder `scripts` includes the python scripts used to create the plots. 
+
+No appropriate test where written as testing numerical methods directly can be trouble some, the comparison to the analytical solutions functions as the tests.
 
 ## Report
 In here the Latex file and the pdf for the report are included, in addition to the figures used.
