@@ -15,3 +15,6 @@ This project is on modelling the solar system. This is done through the use of s
 
 ### Project 4
 This project is on the study of the Ising model, through the use of Monte Carlo simulations with Metropolis sampling. We study how ferromagnetic materials behave at a critical temperature found by Lars Onsager, through studying a 2-dimensional lattice, using the Boltzmann distribution.
+
+### Project 5
+This projects aims to study the one- and two-dimensional diffusion equation using explicit and implicit numerical schemes. Including looking at the mathematical aspects of scaling, truncation error, constraints and solving PDE analytically. 
